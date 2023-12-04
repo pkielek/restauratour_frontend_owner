@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const primaryColor = Color(0xffa30015);
 const primarySwatch = MaterialColor(0xffa30015, <int, Color>{
@@ -16,10 +18,21 @@ const primarySwatch = MaterialColor(0xffa30015, <int, Color>{
   50: Color(0xFFFCE9EC)
 });
 
+void fluttertoastDefault(String message, [bool error = false]) {
+  final String color = error ? '#f44336' : '#4caf50';
+  Fluttertoast.showToast(msg: message,gravity: ToastGravity.TOP, timeInSecForIosWeb: 3,webBgColor: color);
+}
+
+final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
+
 extension EmailValidator on String {
   bool isValidEmail() {
     return RegExp(
             r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
         .hasMatch(this);
   }
+}
+
+extension SecondsSinceEpoch on DateTime {
+  int get secondsSinceEpoch => millisecondsSinceEpoch ~/ 1000;
 }

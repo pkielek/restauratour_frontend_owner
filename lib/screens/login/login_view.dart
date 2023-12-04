@@ -4,34 +4,23 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:restaurant_helper/constants.dart';
-import 'package:restaurant_helper/providers/basic_providers.dart';
+import 'package:restaurant_helper/widgets/login/email_field.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-part 'login_view.g.dart';
+import '../../model/auth.dart';
+import '../../widgets/helper/styles.dart';
+import '../../widgets/login/password_field.dart';
 
-final emailProvider = StateProvider<String>((ref) => "");
-final passwordProvider = StateProvider<String>((ref) => "");
 final errorMessageProvider = StateProvider<String>((ref) => "");
-final showPasswordProvider = StateProvider<bool>((ref) => false);
-
-@riverpod
-Icon passwordVisibleIcon(ref) {
-    return ref.watch(showPasswordProvider) == false
-      ? const Icon(Icons.visibility_off)
-      : const Icon(Icons.visibility);
-}
-
-@riverpod
-Color passwordVisibleColor(ref) {
-  return ref.watch(showPasswordProvider) == false ? primaryColor : Colors.black;
-}
 
 class LoginView extends ConsumerWidget {
   final RoundedLoadingButtonController _submitController =
       RoundedLoadingButtonController();
 
   void _login(RoundedLoadingButtonController controller, WidgetRef ref) async {
+    ref.read(errorMessageProvider.notifier).state = "";
     if (ref.read(emailProvider.notifier).state.isValidEmail() &&
         ref.read(passwordProvider.notifier).state.length >= 4) {
       try {
@@ -40,12 +29,10 @@ class LoginView extends ConsumerWidget {
           'password': ref.read(passwordProvider.notifier).state
         });
         final response = await Dio()
-            .post('http://127.0.0.1:8000/api/owners/login', data: formData);
+            .post('${dotenv.env['API_URL']!}login', data: formData);
         controller.success();
         ref.read(errorMessageProvider.notifier).state = "";
-        ref.read(jwtTokenProvider.notifier).state =
-            response.data["access_token"];
-        ref.read(userNameProvider.notifier).state = response.data['name'];
+        ref.read(authProvider.notifier).login(response.data["access_token"]);
       } on DioException catch (e) {
         controller.error();
         if (e.response != null) {
@@ -53,7 +40,8 @@ class LoginView extends ConsumerWidget {
           ref.read(errorMessageProvider.notifier).state =
               responseBody['detail'];
         } else {
-          ref.read(errorMessageProvider.notifier).state = "Coś poszło nie tak. Spróbuj zalogować się ponownie";
+          ref.read(errorMessageProvider.notifier).state =
+              "Coś poszło nie tak. Spróbuj zalogować się ponownie";
         }
       }
     } else {
@@ -61,9 +49,6 @@ class LoginView extends ConsumerWidget {
           "Pola nie zostały wypełnione poprawnie";
       controller.error();
     }
-    Timer(const Duration(seconds: 2), () {
-      controller.reset();
-    });
   }
 
   @override
@@ -92,88 +77,39 @@ class LoginView extends ConsumerWidget {
                       children: [
                         const Center(
                             child: SelectableText("Panel Administratora",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 32))),
+                                style: boldBig)),
                         Form(
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
                             child: Column(children: [
-                              TextFormField(
-                                  validator: (input) {
-                                    if (input == "") return null;
-                                    return input!.isValidEmail()
-                                        ? null
-                                        : "Podaj prawidłowy adres e-mail";
-                                  },
-                                  onChanged: (value) => ref
-                                      .read(emailProvider.notifier)
-                                      .state = value,
-                                  onFieldSubmitted: (_) =>
-                                      _login(_submitController, ref),
-                                  decoration: InputDecoration(
-                                    icon: const Icon(
-                                      Icons.person,
-                                      color: Colors.black,
-                                    ),
-                                    labelText: 'Adres e-mail',
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                        borderSide: const BorderSide(
-                                            color: Colors.black)),
-                                  )),
+                              EmailField(
+                                  onSubmit: () =>
+                                      _login(_submitController, ref)),
                               const SizedBox(height: 15),
-                              TextFormField(
-                                  validator: (value) =>
-                                      value!.length < 4 && value.isNotEmpty
-                                          ? "Hasło jest za krótkie"
-                                          : null,
-                                  onChanged: (value) => ref
-                                      .read(passwordProvider.notifier)
-                                      .state = value,
-                                  onFieldSubmitted: (_) =>
-                                      _login(_submitController, ref),
-                                  obscureText: !ref.watch(showPasswordProvider),
-                                  decoration: InputDecoration(
-                                    icon: const Icon(Icons.key,
-                                        color: Colors.black),
-                                    labelText: 'Hasło',
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12.0)),
-                                    suffixIcon: IconButton(
-                                      icon: ref
-                                          .watch(passwordVisibleIconProvider),
-                                      onPressed: () => ref
-                                          .read(showPasswordProvider.notifier)
-                                          .update((state) => !state),
-                                      color: ref
-                                          .watch(passwordVisibleColorProvider),
-                                      splashRadius: 1.0,
-                                    ),
-                                  )),
+                              PasswordField(onSubmit: () {
+                                _login(_submitController, ref);
+                              }),
                               const SizedBox(height: 15),
                               RoundedLoadingButton(
                                 color: primaryColor,
                                 successIcon: Icons.done,
                                 failedIcon: Icons.close,
+                                resetAfterDuration: true,
+                                resetDuration: const Duration(seconds: 2),
                                 width: 2000,
-                                child: Text('Zaloguj się!',
-                                    style: TextStyle(color: Colors.white)),
                                 controller: _submitController,
                                 onPressed: () => _login(_submitController, ref),
+                                child: const Text('Zaloguj się!',
+                                    style: TextStyle(color: Colors.white)),
                               ),
                               const SizedBox(height: 15),
                               SelectableText(ref.watch(errorMessageProvider),
-                                  style: TextStyle(color: Colors.red)),
+                                  style: const TextStyle(color: Colors.red)),
                             ])),
                         const Center(
                             child: SelectableText(
                                 "Piotr Kiełek © 2023 | Wszelkie prawa zastrzeżone",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w100,
-                                    fontSize: 12))),
+                                style: footprintStyle)),
                       ],
                     ))))
       ],

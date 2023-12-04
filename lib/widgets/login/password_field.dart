@@ -1,68 +1,53 @@
 import 'package:flutter/material.dart';
-import 'package:restaurant_helper/widgets/login/text_field_container.dart';
-import 'package:restaurant_helper/constants.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:rounded_loading_button/rounded_loading_button.dart';
 
-class PasswordField extends StatefulWidget {
-  final TextEditingController textEditingController;
-  final ValueChanged<String> onChanged;
-  final String? errorText;
-  const PasswordField({
-    Key? key,
-    required this.textEditingController,
-    required this.onChanged,
-    this.errorText,
-  }) : super(key: key);
+import '../../constants.dart';
 
-  @override
-  _PasswordFieldState createState() => _PasswordFieldState();
+part 'password_field.g.dart';
+
+final showPasswordProvider = StateProvider<bool>((ref) => false);
+final passwordProvider = StateProvider<String>((ref) => "");
+
+@riverpod
+Icon passwordVisibleIcon(ref) {
+  return ref.watch(showPasswordProvider) == false
+      ? const Icon(Icons.visibility_off)
+      : const Icon(Icons.visibility);
 }
 
-class _PasswordFieldState extends State<PasswordField> {
-  bool _showPassword = true;
-  Icon _iconToShow = const Icon(Icons.visibility_off);
+@riverpod
+Color passwordVisibleColor(ref) {
+  return ref.watch(showPasswordProvider) == false ? primaryColor : Colors.black;
+}
 
-  void setPasswordVisible() {
-    setState(() {
-      _showPassword = !_showPassword;
-      if (_showPassword) {
-        _iconToShow = const Icon(Icons.visibility_off);
-      } else {
-        _iconToShow = const Icon(Icons.visibility);
-      }
-    });
-  }
+class PasswordField extends ConsumerWidget {
+  const PasswordField({super.key, required VoidCallback this.onSubmit});
+
+  final VoidCallback onSubmit;
 
   @override
-  Widget build(BuildContext context) {
-    return TextFieldContainer(
-      error: widget.errorText,
-      width: 0.75,
-      child: TextField(
-        controller: widget.textEditingController,
-        keyboardType: TextInputType.text,
-        obscureText: _showPassword,
-        onChanged: widget.onChanged,
-        cursorColor: primaryColor,
+  Widget build(BuildContext context, WidgetRef ref) {
+    return TextFormField(
+        validator: (value) => value!.length < 4 && value.isNotEmpty
+            ? "Hasło jest za krótkie"
+            : null,
+        onChanged: (value) => ref.read(passwordProvider.notifier).state = value,
+        onFieldSubmitted: (_) => onSubmit,
+        obscureText: !ref.watch(showPasswordProvider),
         decoration: InputDecoration(
-            hintText: "Password",
-            errorText: widget.errorText,
-            errorStyle: const TextStyle(fontSize: 13),
-            border: OutlineInputBorder(
-                borderSide: BorderSide.none,
-                borderRadius: BorderRadius.circular(12.0)),
-            hintStyle: TextStyle(
-                color: Colors.grey.shade400,
-                fontWeight: FontWeight.w600,
-                fontSize: 18),
-            suffixIcon: IconButton(
-              icon: _iconToShow,
-              onPressed: () => {setPasswordVisible()},
-              color: primaryColor,
-              splashRadius: 1.0,
-            ),
-            fillColor: Colors.grey.shade200,
-            filled: true),
-      ),
-    );
+          icon: const Icon(Icons.key, color: Colors.black),
+          labelText: 'Hasło',
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+          suffixIcon: IconButton(
+            icon: ref.watch(passwordVisibleIconProvider),
+            onPressed: () => ref
+                .read(showPasswordProvider.notifier)
+                .update((state) => !state),
+            color: ref.watch(passwordVisibleColorProvider),
+            splashRadius: 1.0,
+          ),
+        ));
   }
 }
