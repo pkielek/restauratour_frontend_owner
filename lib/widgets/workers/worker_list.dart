@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:restaurant_helper/model/worker.dart';
 import 'package:restaurant_helper/widgets/helper/styles.dart';

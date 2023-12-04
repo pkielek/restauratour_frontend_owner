@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/constants.dart';
 import 'package:restaurant_helper/widgets/login/email_field.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
