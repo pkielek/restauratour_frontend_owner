@@ -11,7 +11,7 @@ class WorkersList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(workerListProvider).when(
         data: (data) {
-          if (data.length == 0) {
+          if (data.isEmpty) {
             return Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,

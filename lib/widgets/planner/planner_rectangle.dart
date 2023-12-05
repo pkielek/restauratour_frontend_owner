@@ -4,7 +4,7 @@ import 'package:restaurant_helper/widgets/planner/planner_base_shape.dart';
 import '../../model/planner_object.dart';
 
 class PlannerRectangle extends PlannerBaseShape {
-  const PlannerRectangle(this.object, {Key? key}) : super(key: key);
+  const PlannerRectangle(this.object, {super.key});
   final PlannerObject object;
   @override
   _PlannerRectangleState createState() => _PlannerRectangleState();

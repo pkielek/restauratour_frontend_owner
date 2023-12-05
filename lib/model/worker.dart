@@ -58,7 +58,12 @@ class WorkerList extends _$WorkerList {
           .map((e) => Worker.fromJson(e))
           .toList();
     } on DioException catch (e) {
-      print('error');
+        if (e.response != null) {
+          Map responseBody = e.response!.data;
+          fluttertoastDefault(responseBody['detail'],true);
+        } else {
+          fluttertoastDefault("Coś poszło nie tak przy wczytywaniu listy kelnerów. Spróbuj ponownie później",true);
+        }
     }
     return [];
   }

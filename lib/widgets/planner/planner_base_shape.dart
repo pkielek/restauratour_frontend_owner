@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PlannerBaseShape extends StatefulWidget {
-  const PlannerBaseShape({Key? key}) : super(key: key);
+  const PlannerBaseShape({super.key});
 
   @override
   PlannerBaseShapeState createState() => PlannerBaseShapeState();

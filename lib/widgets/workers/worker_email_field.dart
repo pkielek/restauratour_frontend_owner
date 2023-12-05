@@ -4,7 +4,7 @@ import 'package:restaurant_helper/constants.dart';
 import 'package:restaurant_helper/model/create_worker.dart';
 
 class WorkerEmailField extends ConsumerWidget {
-  const WorkerEmailField({super.key, required VoidCallback this.onSubmit, required TextEditingController this.controller});
+  const WorkerEmailField({super.key, required this.onSubmit, required this.controller});
 
   final VoidCallback onSubmit;
   final TextEditingController controller;

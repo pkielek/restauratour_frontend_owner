@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rounded_loading_button/rounded_loading_button.dart';
 
 import '../../constants.dart';
 
@@ -23,7 +22,7 @@ Color passwordVisibleColor(ref) {
 }
 
 class PasswordField extends ConsumerWidget {
-  const PasswordField({super.key, required VoidCallback this.onSubmit});
+  const PasswordField({super.key, required this.onSubmit});
 
   final VoidCallback onSubmit;
 

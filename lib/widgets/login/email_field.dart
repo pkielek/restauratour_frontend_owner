@@ -5,7 +5,7 @@ import 'package:restaurant_helper/constants.dart';
 final emailProvider = StateProvider<String>((ref) => "");
 
 class EmailField extends ConsumerWidget {
-  const EmailField({super.key, required VoidCallback this.onSubmit});
+  const EmailField({super.key, required this.onSubmit});
 
   final VoidCallback onSubmit;
 

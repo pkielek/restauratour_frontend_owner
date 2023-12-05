@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/constants.dart';
 import 'package:restaurant_helper/widgets/helper/styles.dart';
 import 'package:routemaster/routemaster.dart';
@@ -27,6 +27,6 @@ class NavigationItem extends ConsumerWidget {
                 ? MaterialStateProperty.all(primaryColor)
                 : MaterialStateProperty.resolveWith(
                     (states) => navigationColor(states))),
-        child: Text(routeName!));
+        child: Text(routeName));
   }
 }

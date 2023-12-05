@@ -1,20 +1,11 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/constants.dart';
 import 'package:restaurant_helper/model/create_worker.dart';
-import 'package:restaurant_helper/model/worker.dart';
-import 'package:restaurant_helper/screens/login/login_view.dart';
-import 'package:restaurant_helper/widgets/login/email_field.dart';
 import 'package:restaurant_helper/widgets/workers/worker_data_field.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import '../../model/auth.dart';
-import '../../widgets/helper/styles.dart';
-import '../../widgets/login/password_field.dart';
 import 'worker_email_field.dart';
 
 class CreateWorkerForm extends HookConsumerWidget {
@@ -27,13 +18,13 @@ class CreateWorkerForm extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(createWorkerStateProvider.notifier).state;
-    final _emailController = useTextEditingController();
-    final _firstNameController = useTextEditingController();
-    final _surnameController = useTextEditingController();
+    final emailController = useTextEditingController();
+    final firstNameController = useTextEditingController();
+    final surnameController = useTextEditingController();
     WidgetsBinding.instance.addPostFrameCallback((_) => ref.read(createWorkerStateProvider.notifier).updateControllers({
-      "email": _emailController,
-      "firstName": _firstNameController,
-      "surname": _surnameController
+      "email": emailController,
+      "firstName": firstNameController,
+      "surname": surnameController
     }));
 
     Size size = MediaQuery.of(context).size;  
@@ -46,13 +37,13 @@ class CreateWorkerForm extends HookConsumerWidget {
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: Column(children: [
                     WorkerEmailField(
-                        controller:_emailController,
+                        controller:emailController,
                         onSubmit: () => ref
                             .read(createWorkerStateProvider.notifier)
                             .sendForm(_submitController)),
                     const SizedBox(height: 15),
                     WorkerDataField(
-                        controller:_firstNameController,
+                        controller:firstNameController,
                         onSubmit: () => ref
                             .read(createWorkerStateProvider.notifier)
                             .sendForm(_submitController),
@@ -60,7 +51,7 @@ class CreateWorkerForm extends HookConsumerWidget {
                         fieldShownName: "Imię"),
                     const SizedBox(height: 15),
                     WorkerDataField(
-                        controller:_surnameController,
+                        controller:surnameController,
                         onSubmit: () => ref
                             .read(createWorkerStateProvider.notifier)
                             .sendForm(_submitController),

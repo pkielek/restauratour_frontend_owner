@@ -6,7 +6,7 @@ import 'package:restaurant_helper/widgets/planner/planner_rectangle.dart';
 import '../../model/planner_object.dart';
 
 class PlannerBoard extends ConsumerStatefulWidget {
-  const PlannerBoard({Key? key}) : super(key: key);
+  const PlannerBoard({super.key});
 
   @override
   _PlannerBoardState createState() => _PlannerBoardState();

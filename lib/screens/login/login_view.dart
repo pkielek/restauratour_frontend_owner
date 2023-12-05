@@ -1,11 +1,8 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/constants.dart';
 import 'package:restaurant_helper/widgets/login/email_field.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -18,6 +15,8 @@ final errorMessageProvider = StateProvider<String>((ref) => "");
 class LoginView extends ConsumerWidget {
   final RoundedLoadingButtonController _submitController =
       RoundedLoadingButtonController();
+
+  LoginView({super.key});
 
   void _login(RoundedLoadingButtonController controller, WidgetRef ref) async {
     ref.read(errorMessageProvider.notifier).state = "";

@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../widgets/planner/planner_board.dart';
 
 class SpacePlannerView extends ConsumerWidget {
-  const SpacePlannerView({Key? key}) : super(key: key);
+  const SpacePlannerView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
