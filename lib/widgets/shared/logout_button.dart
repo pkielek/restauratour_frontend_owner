@@ -5,8 +5,6 @@ import 'package:restaurant_helper/widgets/helper/styles.dart';
 
 import '../../model/auth.dart';
 
-final logoutButtonHoverProvider = StateProvider<bool>((ref) => false);
-
 class LogoutButton extends ConsumerWidget {
   const LogoutButton({super.key});
 

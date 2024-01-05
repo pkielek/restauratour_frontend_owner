@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:restaurant_helper/model/planner_object.dart';
+import 'package:restaurant_helper/model/auth.dart';
 import 'package:restaurant_helper/widgets/planner/planner_table_resize_handle.dart';
 
 import '../../model/planner_tables_board.dart';
 import '../../model/planner_table.dart';
 
 class PlannerTableUI extends ConsumerWidget {
-  const PlannerTableUI({super.key, required this.data, required this.board});
+  const PlannerTableUI({super.key, required this.data, required this.board, required this.notifier});
   final PlannerTablesBoard board;
+  final PlannerInfo notifier;
   final PlannerTable data;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final boardNotifier = ref.watch(plannerBoardProvider.notifier);
     final BoxDecoration decoration = BoxDecoration(
         color: board.isSelectedTable(data) ? Colors.green : Colors.red,
         border: Border.all(color: Colors.black, width: 2));
@@ -26,11 +26,11 @@ class PlannerTableUI extends ConsumerWidget {
             borderRadius: BorderRadius.circular(50)));
 
     final uneditableTableWidget =
-        !board.editable ? Container(decoration: decoration) : null;
+        notifier.type != AuthType.owner ? Container(decoration: decoration) : null;
     return Stack(
       fit: StackFit.expand,
       children: [
-        if (board.editable)
+        if (notifier.type == AuthType.owner)
           Positioned.fromRect(
             rect: data.toNewRect(board.precision),
             child: MouseRegion(
@@ -87,19 +87,19 @@ class PlannerTableUI extends ConsumerWidget {
                     MouseRegion(
                       cursor: data.currentAction.cursor,
                       child: GestureDetector(
-                        onTap: board.currentAction == BoardAction.none ? () => boardNotifier.selectTable(data) : null,
+                        onTap: board.currentAction == BoardAction.none ? () => notifier.selectTable(data) : null,
                         onPanStart: board.selectedTable != null
                             ? null
-                            : (details) => boardNotifier.onTableDragStart(
+                            : (details) => notifier.onTableDragStart(
                                 data.id, details),
                         onPanUpdate: board.selectedTable != null
                             ? null
-                            : (details) => boardNotifier.onTableDragUpdate(
+                            : (details) => notifier.onTableDragUpdate(
                                 data.id, details),
                         onPanEnd: board.selectedTable != null
                             ? null
                             : (details) =>
-                                boardNotifier.onTableDragEnd(data.id, details),
+                                notifier.onTableDragEnd(data.id, details),
                         child: Opacity(
                           opacity: 0.33,
                           child: Container(

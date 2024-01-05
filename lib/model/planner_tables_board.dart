@@ -71,12 +71,10 @@ enum BoardAction {
 @freezed
 class PlannerTablesBoard with _$PlannerTablesBoard {
   const PlannerTablesBoard._();
-  @JsonSerializable(fieldRename: FieldRename.snake)
   factory PlannerTablesBoard({
     required List<PlannerTable> tables,
     required List<PlannerBorder> borders,
     required double precision,
-    @JsonKey(ignore: true) @Default(true) bool editable,
     @JsonKey(ignore: true)
     @Default(BoardAction.none)
     BoardAction? currentAction,
@@ -228,10 +226,13 @@ class PlannerTablesBoard with _$PlannerTablesBoard {
 }
 
 @riverpod
-class PlannerBoard extends _$PlannerBoard {
+class PlannerInfo extends _$PlannerInfo {
   @override
-  Future<PlannerTablesBoard> build() async {
-    final token = ref.read(authProvider);
+  Future<PlannerTablesBoard> build(AuthType type, [int? restaurantID]) async {
+    if(type == AuthType.user && restaurantID == null) {
+      throw ArgumentError();
+    } 
+    final token = ref.read(authProvider).value!;
     try {
       final response = await Dio().get('${dotenv.env['API_URL']!}planner-info',
           options:
@@ -256,7 +257,7 @@ class PlannerBoard extends _$PlannerBoard {
 
   void onTableDragStart(String id, DragStartDetails details,
       [PlannerDirection? direction]) {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     state = AsyncData(state.value!.copyWith(tables: [
       for (final table in state.value!.tables)
         if (table.id == id) table.onDragStart(details, direction) else table
@@ -265,7 +266,7 @@ class PlannerBoard extends _$PlannerBoard {
 
   void onTableDragUpdate(String id, DragUpdateDetails details,
       [PlannerDirection? direction]) {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     state = AsyncData(state.value!.copyWith(tables: [
       for (final table in state.value!.tables)
         if (table.id == id)
@@ -279,7 +280,7 @@ class PlannerBoard extends _$PlannerBoard {
     String id,
     DragEndDetails details,
   ) {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     state = AsyncData(state.value!.copyWith(tables: [
       for (final table in state.value!.tables)
         if (table.id == id)
@@ -293,7 +294,7 @@ class PlannerBoard extends _$PlannerBoard {
 
   void onBorderDragStart(DragStartDetails details,
       [PlannerDirection? direction]) {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     state = AsyncData(state.value!.copyWith(borders: [
       ...List.from(state.value!.borders)..removeLast(),
       state.value!.borders.length > 1
@@ -309,7 +310,7 @@ class PlannerBoard extends _$PlannerBoard {
 
   void onBorderDragUpdate(DragUpdateDetails details,
       [PlannerDirection? direction]) {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     state = AsyncData(state.value!.copyWith(borders: [
       ...List.from(state.value!.borders)..removeLast(),
       state.value!.borders.last.onDragUpdate(
@@ -318,7 +319,7 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   void onBorderDragEnd(DragEndDetails details, PlannerDirection direction) {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     final canUpdate = state.value!
         .canUpdateTable((state.value!.borders.length - 1).toString(), isTable: false);
     final isFirst = state.value!.borders.length == 1;
@@ -349,7 +350,7 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   void addTable() {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     state = AsyncData(state.value!.copyWith(tables: [
       ...state.value!.tables,
       PlannerTable(
@@ -362,14 +363,14 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   void stopAddTable() {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     state = AsyncData(state.value!.copyWith(
         tables: state.value!.tables.where((x) => x.id != "new").toList(),
         currentAction: BoardAction.none));
   }
 
   void updateAddTable(PointerHoverEvent event) {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     state = AsyncData(state.value!.copyWith(tables: [
       for (final table in state.value!.tables)
         if (table.id == "new") table.updateAddTable(event) else table
@@ -377,7 +378,7 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   void placeNewTable() {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     if (!state.value!.canUpdateTable("new", isTable: true)) return;
     state = AsyncData(state.value!.copyWith(tables: [
       for (final table in state.value!.tables)
@@ -390,7 +391,7 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   void placeBorder() {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     state = AsyncData(state.value!.copyWith(borders: [
       PlannerBorder(
           type: PlannerBorderType.wall,
@@ -402,7 +403,7 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   void updatePlaceBorder(PointerHoverEvent event) {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     state = AsyncData(state.value!.copyWith(borders: [
       ...List.from(state.value!.borders)..removeLast(),
       state.value!.borders.last.updateAddBorder(event, state.value!.precision)
@@ -410,7 +411,7 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   void placeNewBorder() {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     if (!state.value!.canUpdateTable(
         (state.value!.borders.length - 1).toString(), isTable: false)) return;
     state = AsyncData(state.value!.copyWith(borders: [
@@ -421,13 +422,13 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   void stopAddBorder() {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     state = AsyncData(state.value!
         .copyWith(borders: List.empty(), currentAction: BoardAction.none));
   }
 
   void chooseNewBorderType(PlannerBorderType type) {
-    if (!state.value!.editable) return;
+    if (this.type != AuthType.owner) return;
     state = AsyncData(state.value!
         .copyWith(currentAction: BoardAction.chooseExtendBorder, borders: [
       ...List.from(state.value!.borders),
@@ -441,7 +442,7 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   void removeLastBorder() {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
 
     state = AsyncData(state.value!.copyWith(borders: List.from(state.value!.borders)..removeLast(),currentAction: BoardAction.chooseBorderType));
   }
@@ -453,13 +454,13 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   void deselectTable() {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     state = AsyncData(state.value!
         .copyWith(selectedTable: null, currentAction: BoardAction.none));
   }
 
   void modifyChairs(PlannerDirection direction, bool subtract) {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     if (subtract
         ? !state.value!.canSubtractChairs(direction)
         : !state.value!.canAddChairs(direction)) return;
@@ -474,7 +475,7 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   void updateTableID(TextEditingController controller) {
-    if (!state.value!.editable) return;
+    if (type != AuthType.owner) return;
     final modifyTable = state.value!.tables[state.value!.selectedTable!];
     if (modifyTable.id == controller.text) return;
     for (final table in state.value!.tables) {
@@ -492,8 +493,8 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   Future<void> savePrecision() async {
-    if (!state.value!.editable) return;
-    final token = ref.read(authProvider);
+    if (type != AuthType.owner) return;
+    final token = ref.read(authProvider).value!;
     try {
       final response = await Dio().post(
           '${dotenv.env['API_URL']!}save-precision',
@@ -514,8 +515,8 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   Future<void> saveChanges() async {
-    if (!state.value!.editable) return;
-    final token = ref.read(authProvider);
+    if (type != AuthType.owner) return;
+    final token = ref.read(authProvider).value!;
     try {
       final response = await Dio().post(
           '${dotenv.env['API_URL']!}save-planner-info',
@@ -535,7 +536,7 @@ class PlannerBoard extends _$PlannerBoard {
   }
 
   Future<void> resetBorders() async {
-    final token = ref.read(authProvider);
+    final token = ref.read(authProvider).value!;
     try {
       final response = await Dio().get('${dotenv.env['API_URL']!}planner-info',
           options:

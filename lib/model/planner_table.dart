@@ -13,7 +13,6 @@ part 'planner_table.g.dart';
 @freezed
 class PlannerTable with _$PlannerTable implements PlannerObject {
   const PlannerTable._();
-  @JsonSerializable(fieldRename: FieldRename.snake)
   factory PlannerTable(
       {@JsonKey(name: "real_id") required String id,
       required double left,

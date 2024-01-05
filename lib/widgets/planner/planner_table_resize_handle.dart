@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:restaurant_helper/model/auth.dart';
 import 'package:restaurant_helper/model/planner_tables_board.dart';
 
 class PlannerTableResizeHandle extends ConsumerWidget {
@@ -11,7 +12,6 @@ class PlannerTableResizeHandle extends ConsumerWidget {
   final PlannerDirection direction;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final boardNotifier = ref.watch(plannerBoardProvider.notifier);
     return Positioned(
         top: direction.isHorizontal ? 0.5 * precision : (direction==PlannerDirection.bottom ? rect.height-0.5*precision : 0) ,
         left: direction.isVertical ? 0.5 * precision : (direction==PlannerDirection.right ? rect.width-0.5*precision : 0),
@@ -27,11 +27,11 @@ class PlannerTableResizeHandle extends ConsumerWidget {
                     ? SystemMouseCursors.resizeLeftRight
                     : SystemMouseCursors.resizeUpDown,child: GestureDetector(
                       onPanStart:
-                          (details) => boardNotifier.onTableDragStart(id, details, direction),
+                          (details) => ref.read(PlannerInfoProvider(AuthType.owner).notifier).onTableDragStart(id, details, direction),
                       onPanUpdate:
-                          (details) => boardNotifier.onTableDragUpdate(id, details, direction),
+                          (details) => ref.read(PlannerInfoProvider(AuthType.owner).notifier).onTableDragUpdate(id, details, direction),
                       onPanEnd: 
-                          (details) => boardNotifier.onTableDragEnd(id, details),
+                          (details) => ref.read(PlannerInfoProvider(AuthType.owner).notifier).onTableDragEnd(id, details),
                     ))));
   }
 }

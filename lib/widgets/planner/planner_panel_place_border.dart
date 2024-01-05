@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:restaurant_helper/model/auth.dart';
 import 'package:restaurant_helper/model/planner_tables_board.dart';
 import 'package:restaurant_helper/widgets/helper/styles.dart';
 import 'package:restaurant_helper/widgets/planner/planner_panel_button.dart';
@@ -30,14 +31,14 @@ class PlannerPanelPlaceBorder extends ConsumerWidget {
             PlannerPanelButton(
                 text: "Usuń ostatnią granicę",
                 callback:
-                    ref.read(plannerBoardProvider.notifier).removeLastBorder),
+                    ref.read(PlannerInfoProvider(AuthType.owner).notifier).removeLastBorder),
             PlannerPanelButton(
                   text: "Pozostaw granice puste",
-                  callback: ref.read(plannerBoardProvider.notifier).stopAddBorder,
+                  callback: ref.read(PlannerInfoProvider(AuthType.owner).notifier).stopAddBorder,
                 ),
             PlannerPanelButton(
               text:"Pozostaw poprzednie",
-              callback: ref.read(plannerBoardProvider.notifier).resetBorders,
+              callback: ref.read(PlannerInfoProvider(AuthType.owner).notifier).resetBorders,
             )
           ],
         ),

@@ -46,7 +46,6 @@ enum AccountStatus {
 
 @freezed
 class Worker with _$Worker {
-  @JsonSerializable(fieldRename: FieldRename.snake)
   factory Worker({
     required int id,
     required String firstName,
@@ -62,7 +61,7 @@ class Worker with _$Worker {
 class WorkerList extends _$WorkerList {
   @override
   Future<List<Worker>> build() async {
-    final token = ref.read(authProvider);
+    final token = ref.read(authProvider).value!;
     try {
       final response = await Dio().post('${dotenv.env['API_URL']!}workers-list',
           options:
@@ -91,7 +90,7 @@ class WorkerList extends _$WorkerList {
     if(!availableActions.contains(link)) {
       fluttertoastDefault('Błąd aplikacji',true);
     } else {
-      final token = ref.read(authProvider);
+      final token = ref.read(authProvider).value!;
       try {
         final response = await Dio().post(
             '${dotenv.env['API_URL']!}$link',

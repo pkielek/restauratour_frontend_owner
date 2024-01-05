@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/constants.dart';
-
-final emailProvider = StateProvider<String>((ref) => "");
+import 'package:restaurant_helper/model/login.dart';
 
 class EmailField extends ConsumerWidget {
   const EmailField({super.key, required this.onSubmit});
@@ -17,7 +16,7 @@ class EmailField extends ConsumerWidget {
           if (input == "") return null;
           return input!.isValidEmail() ? null : "Podaj prawidłowy adres e-mail";
         },
-        onChanged: (value) => ref.read(emailProvider.notifier).state = value,
+        onChanged: ref.read(loginProvider.notifier).updateEmail,
         onFieldSubmitted: (_) => onSubmit(),
         decoration: InputDecoration(
           icon: const Icon(

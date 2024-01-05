@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/constants.dart';
+import 'package:restaurant_helper/model/auth.dart';
 import 'package:restaurant_helper/model/planner_tables_board.dart';
 import 'package:restaurant_helper/widgets/helper/styles.dart';
 import 'package:restaurant_helper/widgets/planner/planner_panel_button.dart';
@@ -31,17 +32,22 @@ class PlannerPanelDefault extends ConsumerWidget {
           if (!(board.status == BoardStatus.uninitialized)) ...[
             PlannerPanelButton(
               text: "Dodaj stolik",
-              callback: ref.read(plannerBoardProvider.notifier).addTable,
+              callback: ref
+                  .read(PlannerInfoProvider(AuthType.owner).notifier)
+                  .addTable,
             ),
             PlannerPanelButton(
-              text:
-                  "${board.borders.isEmpty ? "Dodaj" : "Zmień"} granice",
-              callback: ref.read(plannerBoardProvider.notifier).placeBorder,
+              text: "${board.borders.isEmpty ? "Dodaj" : "Zmień"} granice",
+              callback: ref
+                  .read(PlannerInfoProvider(AuthType.owner).notifier)
+                  .placeBorder,
             )
           ],
           Slider(
             value: board.precision < 15 ? 15 : board.precision,
-            onChanged: ref.read(plannerBoardProvider.notifier).updatePrecision,
+            onChanged: ref
+                .read(PlannerInfoProvider(AuthType.owner).notifier)
+                .updatePrecision,
             min: 15,
             max: 50,
             label: "Precyzja: ${board.precision.toString()}",
@@ -51,7 +57,9 @@ class PlannerPanelDefault extends ConsumerWidget {
         Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           if (board.status == BoardStatus.standard)
             PlannerPanelButton(
-                callback: ref.read(plannerBoardProvider.notifier).resetChanges,
+                callback: ref
+                    .read(PlannerInfoProvider(AuthType.owner).notifier)
+                    .resetChanges,
                 text: "Zresetuj zmiany"),
           RoundedLoadingButton(
             color: primaryColor,
@@ -61,8 +69,13 @@ class PlannerPanelDefault extends ConsumerWidget {
             resetDuration: const Duration(seconds: 2),
             width: 2000,
             controller: _submitController,
-            onPressed: () =>
-                board.status == BoardStatus.empty ? ref.read(plannerBoardProvider.notifier).savePrecision() : ref.read(plannerBoardProvider.notifier).saveChanges(),
+            onPressed: () => board.status == BoardStatus.empty
+                ? ref
+                    .read(PlannerInfoProvider(AuthType.owner).notifier)
+                    .savePrecision()
+                : ref
+                    .read(PlannerInfoProvider(AuthType.owner).notifier)
+                    .saveChanges(),
             child: Text(
                 'Zapisz ${board.status == BoardStatus.empty ? "precyzję" : "zmiany"}',
                 style: const TextStyle(color: Colors.white)),

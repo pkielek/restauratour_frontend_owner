@@ -41,8 +41,8 @@ class MyApp extends ConsumerWidget {
               thickness: MaterialStatePropertyAll(5),
               thumbVisibility: MaterialStatePropertyAll(true))),
       routerDelegate: RoutemasterDelegate(
-          routesBuilder: (context) => ref.watch(authStateProvider).when(
-                data: (data) => data == AuthenticationState.logged
+          routesBuilder: (context) => ref.watch(authProvider).when(
+                data: (data) => data.isLogged
                     ? routes
                     : loggedOutRoute,
                 error: (error, stackTrace) => loggedOutRoute,

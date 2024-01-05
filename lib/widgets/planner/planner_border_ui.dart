@@ -9,14 +9,15 @@ class PlannerBorderUI extends ConsumerWidget {
       {super.key,
       required this.data,
       required this.board,
+      required this.notifier,
       required this.index});
+  final PlannerInfo notifier;
   final PlannerTablesBoard board;
   final PlannerBorder data;
   final int index;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final boardNotifier = ref.watch(plannerBoardProvider.notifier);
     final BoxDecoration decoration = BoxDecoration(color: data.type.color);
 
     return Stack(
@@ -53,11 +54,11 @@ class PlannerBorderUI extends ConsumerWidget {
                                 ? SystemMouseCursors.resizeLeftRight
                                 : SystemMouseCursors.resizeUpDown,
                             child: GestureDetector(
-                              onPanStart: (details) => boardNotifier
+                              onPanStart: (details) => notifier
                                   .onBorderDragStart(details, direction),
-                              onPanUpdate: (details) => boardNotifier
+                              onPanUpdate: (details) => notifier
                                   .onBorderDragUpdate(details, direction),
-                              onPanEnd: (details) => boardNotifier
+                              onPanEnd: (details) => notifier
                                   .onBorderDragEnd(details, direction),
                             ))),
                   ))

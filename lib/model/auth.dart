@@ -14,7 +14,7 @@ part 'auth.g.dart';
 class Jwt with _$Jwt {
   const Jwt._();
 
-  factory Jwt(String jwtToken) = _Jwt;
+  factory Jwt(String jwtToken, [@Default(false) bool loggedOut]) = _Jwt;
 
   Map<String, dynamic>? parseJwt() {
     final parts = jwtToken.split('.');
@@ -54,6 +54,12 @@ class Jwt with _$Jwt {
     return utf8.decode(base64Url.decode(output));
   }
 
+  Set<String> getScopes() {
+    final parsedJwt = parseJwt();
+    if (parsedJwt == null) return {};
+    return (parsedJwt['scopes'] as String).split(' ').toSet();
+  }
+
   String getUsername() {
     final parsedJwt = parseJwt();
     if (parsedJwt == null) return "";
@@ -65,65 +71,54 @@ class Jwt with _$Jwt {
     if (parsedJwt == null) return 0;
     return parsedJwt['exp'] as int;
   }
+
+  bool get isLogged => jwtToken.isNotEmpty;
+
+  AuthType get authType {
+    if(getScopes().contains('owner:basic')) {
+      return AuthType.owner;
+    }
+    if(getScopes().contains('worker:basic')) {
+      return AuthType.worker;
+    }
+    return AuthType.user;
+  }
+
+  bool containsAuthType(AuthType type) {
+    return getScopes().contains('${type.name}:basic');
+  }
+}
+
+enum AuthType {
+  owner,worker,user;
 }
 
 @Riverpod(keepAlive: true)
 class Auth extends _$Auth {
 
   @override
-  Jwt build() {
-    final storedToken = ref.read(
-            sharedPreferencesProvider.select((p) => p.getString("token"))) ??
-        "";
-    ref.listenSelf((prev, curr) {
-      ref.read(sharedPreferencesProvider).setString("token", curr.jwtToken);
-    });
-    return Jwt(storedToken);
+  Stream<Jwt> build() async* {
+    while(true) {
+      ref.listenSelf((previous, current) => ref.read(sharedPreferencesProvider).setString("token",current.value!.jwtToken));
+      if(state.value != null && state.value!.getExpirationTime() <= DateTime.now().toUtc().secondsSinceEpoch) {
+        logOut();
+      }
+      final storedToken = ref.read(
+          sharedPreferencesProvider.select((p) => p.getString("token"))) ??
+      "";
+      yield Jwt(storedToken, state.value?.loggedOut ?? false);
+      await Future.delayed(const Duration(seconds: 5));
+    }
   }
 
   void logOut() {
-    state = Jwt("");
+    state = AsyncData(Jwt("", true));
   }
 
   void login(String jwtToken) {
-    state = Jwt(jwtToken);
+    state = AsyncData(Jwt(jwtToken, false));
   }
 }
-
-enum AuthenticationState { logged, loggedOut }
-
-class AuthState {
-  final Ref ref;
-  AuthenticationState? current;
-  AuthState(this.ref);
-
-  void updateState(Map<String, dynamic> jwt) {}
-
-  Stream<AuthenticationState> authCheck() async* {
-    final Jwt jwt = ref.watch(authProvider);
-    while (true) {
-      final now = DateTime.now().toUtc().secondsSinceEpoch;
-      if (current != null) {
-        await Future.delayed(const Duration(seconds: 5));
-      }
-      if (jwt.jwtToken.isEmpty) {
-        current = AuthenticationState.loggedOut;
-      } else {
-        final expireTime = jwt.getExpirationTime();
-        if (expireTime > now) {
-          current = AuthenticationState.logged;
-        } else {
-          ref.read(authProvider.notifier).logOut();
-          ref.read(inactivityLogoutProvider.notifier).state = true;
-          current = AuthenticationState.loggedOut;
-        }
-      }
-      yield current!;
-    }
-  }
-}
-final authStateProvider = StreamProvider<AuthenticationState>((ref) => AuthState(ref).authCheck());
-
 
 final inactivityLogoutProvider = StateProvider<bool>((ref) => false);
 

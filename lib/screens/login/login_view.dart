@@ -1,54 +1,18 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/constants.dart';
+import 'package:restaurant_helper/model/login.dart';
 import 'package:restaurant_helper/widgets/login/email_field.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import '../../model/auth.dart';
 import '../../widgets/helper/styles.dart';
 import '../../widgets/login/password_field.dart';
-
-final errorMessageProvider = StateProvider<String>((ref) => "");
 
 class LoginView extends ConsumerWidget {
   final RoundedLoadingButtonController _submitController =
       RoundedLoadingButtonController();
 
   LoginView({super.key});
-
-  void _login(RoundedLoadingButtonController controller, WidgetRef ref) async {
-    ref.read(errorMessageProvider.notifier).state = "";
-    if (ref.read(emailProvider.notifier).state.isValidEmail() &&
-        ref.read(passwordProvider.notifier).state.length >= 4) {
-      try {
-        final formData = FormData.fromMap({
-          'username': ref.read(emailProvider.notifier).state,
-          'password': ref.read(passwordProvider.notifier).state
-        });
-        final response = await Dio()
-            .post('${dotenv.env['API_URL']!}login', data: formData);
-        controller.success();
-        ref.read(errorMessageProvider.notifier).state = "";
-        ref.read(authProvider.notifier).login(response.data["access_token"]);
-      } on DioException catch (e) {
-        controller.error();
-        if (e.response != null) {
-          Map responseBody = e.response!.data;
-          ref.read(errorMessageProvider.notifier).state =
-              responseBody['detail'];
-        } else {
-          ref.read(errorMessageProvider.notifier).state =
-              "Coś poszło nie tak. Spróbuj zalogować się ponownie";
-        }
-      }
-    } else {
-      ref.read(errorMessageProvider.notifier).state =
-          "Pola nie zostały wypełnione poprawnie";
-      controller.error();
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -82,12 +46,12 @@ class LoginView extends ConsumerWidget {
                                 AutovalidateMode.onUserInteraction,
                             child: Column(children: [
                               EmailField(
-                                  onSubmit: () =>
-                                      _login(_submitController, ref)),
+                                  onSubmit:
+                                      ref.read(loginProvider.notifier).login),
                               const SizedBox(height: 15),
-                              PasswordField(onSubmit: () {
-                                _login(_submitController, ref);
-                              }),
+                              PasswordField(
+                                  onSubmit:
+                                      ref.read(loginProvider.notifier).login),
                               const SizedBox(height: 15),
                               RoundedLoadingButton(
                                 color: primaryColor,
@@ -97,12 +61,17 @@ class LoginView extends ConsumerWidget {
                                 resetDuration: const Duration(seconds: 2),
                                 width: 2000,
                                 controller: _submitController,
-                                onPressed: () => _login(_submitController, ref),
+                                onPressed:
+                                    ref.read(loginProvider.notifier).login,
                                 child: const Text('Zaloguj się!',
                                     style: TextStyle(color: Colors.white)),
                               ),
                               const SizedBox(height: 15),
-                              SelectableText(ref.watch(errorMessageProvider),
+                              SelectableText(
+                                  ref.watch(loginProvider).when(
+                                      data: (data) => data.errorMessage,
+                                      error: (_, __) => "Niespodziewany błąd",
+                                      loading: () => ""),
                                   style: const TextStyle(color: Colors.red)),
                             ])),
                         const Center(

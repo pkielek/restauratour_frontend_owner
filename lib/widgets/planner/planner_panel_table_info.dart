@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:restaurant_helper/model/auth.dart';
 import 'package:restaurant_helper/model/planner_tables_board.dart';
 import 'package:restaurant_helper/widgets/helper/styles.dart';
 import 'package:restaurant_helper/widgets/planner/planner_panel_button.dart';
@@ -29,16 +30,14 @@ class PlannerPanelTableInfo extends HookConsumerWidget {
             iconSize: 30,
             constraints: const BoxConstraints(),
             onPressed: pressable
-                ? () => ref
-                    .read(plannerBoardProvider.notifier)
+                ? () => ref.read(PlannerInfoProvider(AuthType.owner).notifier)
                     .modifyChairs(direction, subtract)
                 : null));
   }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tableIdController= useTextEditingController(text: board.tables[board.selectedTable!].id);
-    ref.listen(plannerBoardProvider.select((value) => value.value!.selectedTable),(prev,next) => tableIdController.text = next.toString());
+    ref.listen(PlannerInfoProvider(AuthType.owner).select((value) => value.value!.selectedTable),(prev,next) => tableIdController.text = next.toString());
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -55,8 +54,8 @@ class PlannerPanelTableInfo extends HookConsumerWidget {
             TextFormField(
                 onChanged: null,
                 controller: tableIdController,
-                onEditingComplete: () => ref.read(plannerBoardProvider.notifier).updateTableID(tableIdController),
-                onTapOutside: (event) => ref.read(plannerBoardProvider.notifier).updateTableID(tableIdController),
+                onEditingComplete: () => ref.read(PlannerInfoProvider(AuthType.owner).notifier).updateTableID(tableIdController),
+                onTapOutside: (event) => ref.read(PlannerInfoProvider(AuthType.owner).notifier).updateTableID(tableIdController),
                 decoration: InputDecoration(
                   labelText: 'Identyfikator stolika (unikalny)',
                   border: OutlineInputBorder(
@@ -89,7 +88,7 @@ class PlannerPanelTableInfo extends HookConsumerWidget {
           ],
         ),
         PlannerPanelButton(
-            callback: ref.read(plannerBoardProvider.notifier).deselectTable,
+            callback: ref.read(PlannerInfoProvider(AuthType.owner).notifier).deselectTable,
             text: "Zakończ zmiany")
       ],
     );

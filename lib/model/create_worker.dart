@@ -14,7 +14,6 @@ part 'create_worker.g.dart';
 
 @freezed
 class CreateWorker with _$CreateWorker {
-  @JsonSerializable(fieldRename: FieldRename.snake)
   factory CreateWorker({
     @Default("")
     String firstName,
@@ -75,7 +74,7 @@ class CreateWorkerState extends _$CreateWorkerState {
   void sendForm(RoundedLoadingButtonController controller) async {
     if (state.email.isValidEmail()) {
       try {
-        final token = ref.read(authProvider);
+        final token = ref.read(authProvider).value!;
         final formData = state.toJson();
         final response = await Dio().post(
             '${dotenv.env['API_URL']!}create-worker',

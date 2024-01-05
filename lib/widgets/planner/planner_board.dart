@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:restaurant_helper/model/auth.dart';
 import 'package:restaurant_helper/widgets/planner/planner_table_ui.dart';
 
 import '../../model/planner_tables_board.dart';
 import 'planner_border_ui.dart';
 
 class PlannerBoard extends ConsumerWidget {
-  const PlannerBoard({super.key, required this.board});
+  const PlannerBoard({super.key, required this.board, required this.notifier});
   final PlannerTablesBoard board;
+  final PlannerInfo notifier;
 
   List<Widget> getUninitalizedBoardShapes(
       BoxConstraints constraints, double precision) {
@@ -66,8 +68,7 @@ class PlannerBoard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return LayoutBuilder(builder: (context, constraints) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => ref
-          .read(plannerBoardProvider.notifier)
+      WidgetsBinding.instance.addPostFrameCallback((_) => notifier
           .updateConstraints(constraints));
       return InteractiveViewer(
         child: GridPaper(
@@ -76,45 +77,43 @@ class PlannerBoard extends ConsumerWidget {
             subdivisions: 1,
             interval: board.precision < 0 ? 15 : board.precision,
             child: GestureDetector(
-              onTap: !board.editable
+              onTap: notifier.type != AuthType.owner
                   ? null
                   : board.currentAction == BoardAction.addTable
-                      ? ref.read(plannerBoardProvider.notifier).placeNewTable
+                      ? notifier.placeNewTable
                       : (board.currentAction == BoardAction.placeBorder
-                          ? ref
-                              .read(plannerBoardProvider.notifier)
+                          ? notifier
                               .placeNewBorder
                           : (board.currentAction == BoardAction.tableInfo
-                              ? ref
-                                  .read(plannerBoardProvider.notifier)
+                              ? notifier
                                   .deselectTable
                               : null)),
               child: MouseRegion(
-                onHover: !board.editable
+                onHover: notifier.type != AuthType.owner
                     ? null
                     : (board.currentAction == BoardAction.addTable
-                        ? ref.read(plannerBoardProvider.notifier).updateAddTable
+                        ? notifier.updateAddTable
                         : (board.currentAction == BoardAction.placeBorder
-                            ? ref
-                                .read(plannerBoardProvider.notifier)
+                            ? notifier
                                 .updatePlaceBorder
                             : null)),
-                cursor: !board.editable
+                cursor: notifier.type != AuthType.owner
                     ? MouseCursor.defer
                     : board.currentAction?.cursor ?? MouseCursor.defer,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
                     ...board.tables.map(
-                      (e) => PlannerTableUI(data: e, board: board),
+                      (e) => PlannerTableUI(data: e, board: board, notifier: notifier,),
                     ),
-                    if (board.editable &&
+                    if (notifier.type == AuthType.owner &&
                         board.status == BoardStatus.uninitialized)
                       ...getUninitalizedBoardShapes(
                           constraints, board.precision),
                     ...board.borders.indexed.map((entry) => PlannerBorderUI(
                           data: entry.$2,
                           board: board,
+                          notifier: notifier,
                           index: entry.$1,
                         ))
                   ],

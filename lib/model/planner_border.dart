@@ -4,7 +4,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:restaurant_helper/model/planner_object.dart';
-import 'package:restaurant_helper/widgets/planner/planner_table_resize_handle.dart';
 
 import 'planner_tables_board.dart';
 
@@ -46,7 +45,6 @@ enum PlannerBorderType {
 class PlannerBorder with _$PlannerBorder implements PlannerObject {
   const PlannerBorder._();
 
-  @JsonSerializable(fieldRename: FieldRename.snake)
   factory PlannerBorder(
       {required double left,
       required double top,

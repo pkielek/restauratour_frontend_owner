@@ -1,25 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:restaurant_helper/model/login.dart';
 
-import '../../constants.dart';
-
-part 'password_field.g.dart';
-
-final showPasswordProvider = StateProvider<bool>((ref) => false);
-final passwordProvider = StateProvider<String>((ref) => "");
-
-@riverpod
-Icon passwordVisibleIcon(ref) {
-  return ref.watch(showPasswordProvider) == false
-      ? const Icon(Icons.visibility_off)
-      : const Icon(Icons.visibility);
-}
-
-@riverpod
-Color passwordVisibleColor(ref) {
-  return ref.watch(showPasswordProvider) == false ? primaryColor : Colors.black;
-}
 
 class PasswordField extends ConsumerWidget {
   const PasswordField({super.key, required this.onSubmit});
@@ -32,19 +14,17 @@ class PasswordField extends ConsumerWidget {
         validator: (value) => value!.length < 4 && value.isNotEmpty
             ? "Hasło jest za krótkie"
             : null,
-        onChanged: (value) => ref.read(passwordProvider.notifier).state = value,
+        onChanged: ref.read(loginProvider.notifier).updatePassword,
         onFieldSubmitted: (_) => onSubmit(),
-        obscureText: !ref.watch(showPasswordProvider),
+        obscureText: !(ref.watch(loginProvider).value?.showPassword ?? true),
         decoration: InputDecoration(
           icon: const Icon(Icons.key, color: Colors.black),
           labelText: 'Hasło',
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
           suffixIcon: IconButton(
-            icon: ref.watch(passwordVisibleIconProvider),
-            onPressed: () => ref
-                .read(showPasswordProvider.notifier)
-                .update((state) => !state),
-            color: ref.watch(passwordVisibleColorProvider),
+            icon: ref.watch(loginProvider).value?.passwordVisibleIcon ?? const Icon(Icons.visibility),
+            onPressed: ref.read(loginProvider.notifier).toggleShowPassword,
+            color: ref.watch(loginProvider).value?.passwordVisibleColor ?? Colors.black,
             splashRadius: 1.0,
           ),
         ));
