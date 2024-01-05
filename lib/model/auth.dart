@@ -2,10 +2,9 @@ import 'dart:convert';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:restaurant_helper/constants.dart';
+import 'package:utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'basic_providers.dart';
 
 part 'auth.freezed.dart';
 part 'auth.g.dart';

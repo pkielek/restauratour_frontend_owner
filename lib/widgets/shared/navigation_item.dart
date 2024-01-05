@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:restaurant_helper/constants.dart';
-import 'package:restaurant_helper/widgets/helper/styles.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:utils/utils.dart';
 
 class NavigationItem extends ConsumerWidget {
   const NavigationItem(

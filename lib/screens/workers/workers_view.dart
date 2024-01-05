@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/screens/base_view.dart';
-import 'package:restaurant_helper/widgets/helper/styles.dart';
 import 'package:restaurant_helper/widgets/workers/create_worker_form.dart';
+import 'package:utils/utils.dart';
 
 import '../../model/worker.dart';
 import '../../widgets/workers/worker_list.dart';

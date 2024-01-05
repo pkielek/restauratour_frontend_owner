@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:restaurant_helper/constants.dart';
 import 'package:restaurant_helper/model/auth.dart';
 import 'package:restaurant_helper/model/planner_table.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:utils/utils.dart';
 
 import 'planner_border.dart';
 import 'planner_object.dart';

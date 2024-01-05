@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:restaurant_helper/constants.dart';
 import 'package:restaurant_helper/model/login.dart';
 import 'package:restaurant_helper/widgets/login/email_field.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
+import 'package:utils/utils.dart';
 
-import '../../widgets/helper/styles.dart';
 import '../../widgets/login/password_field.dart';
 
 class LoginView extends ConsumerWidget {

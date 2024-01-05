@@ -3,10 +3,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/model/auth.dart';
 import 'package:restaurant_helper/model/planner_tables_board.dart';
-import 'package:restaurant_helper/widgets/helper/styles.dart';
 import 'package:restaurant_helper/widgets/planner/planner_panel_button.dart';
+import 'package:utils/utils.dart';
 
-import '../../constants.dart';
 
 class PlannerPanelTableInfo extends HookConsumerWidget {
   const PlannerPanelTableInfo({super.key, required this.board});

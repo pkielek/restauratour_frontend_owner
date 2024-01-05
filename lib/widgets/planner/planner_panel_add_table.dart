@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/model/auth.dart';
 import 'package:restaurant_helper/model/planner_tables_board.dart';
-import 'package:restaurant_helper/widgets/helper/styles.dart';
 import 'package:restaurant_helper/widgets/planner/planner_panel_button.dart';
+import 'package:utils/utils.dart';
 
 class PlannerPanelAddTable extends ConsumerWidget {
   const PlannerPanelAddTable(

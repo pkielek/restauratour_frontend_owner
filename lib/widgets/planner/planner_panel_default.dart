@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:restaurant_helper/constants.dart';
 import 'package:restaurant_helper/model/auth.dart';
 import 'package:restaurant_helper/model/planner_tables_board.dart';
-import 'package:restaurant_helper/widgets/helper/styles.dart';
 import 'package:restaurant_helper/widgets/planner/planner_panel_button.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
+import 'package:utils/utils.dart';
 
 class PlannerPanelDefault extends ConsumerWidget {
   PlannerPanelDefault({super.key, required this.board});

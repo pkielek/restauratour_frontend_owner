@@ -3,9 +3,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/model/auth.dart';
 import 'package:restaurant_helper/model/planner_tables_board.dart';
 import 'package:restaurant_helper/screens/base_view.dart';
-import 'package:restaurant_helper/widgets/helper/loading.dart';
 import 'package:restaurant_helper/widgets/planner/planner_board.dart';
 import 'package:restaurant_helper/widgets/planner/planner_board_panel.dart';
+import 'package:utils/utils.dart';
 
 class PlannerView extends ConsumerWidget {
   const PlannerView({super.key});

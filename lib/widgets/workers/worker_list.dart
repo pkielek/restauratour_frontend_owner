@@ -1,8 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:restaurant_helper/model/worker.dart';
-import 'package:restaurant_helper/widgets/helper/styles.dart';
 import 'package:restaurant_helper/widgets/workers/worker_tile.dart';
+import 'package:utils/utils.dart';
 
 class WorkersList extends ConsumerWidget {
   const WorkersList({super.key});
