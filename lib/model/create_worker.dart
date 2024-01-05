@@ -76,7 +76,7 @@ class CreateWorkerState extends _$CreateWorkerState {
         final token = ref.read(authProvider).value!;
         final formData = state.toJson();
         final response = await Dio().post(
-            '${dotenv.env['API_URL']!}create-worker',
+            '${dotenv.env['OWNER_API_URL']!}create-worker',
             data: formData,
             options: Options(
                 headers: {"Authorization": "Bearer ${token.jwtToken}"}));

@@ -62,7 +62,7 @@ class WorkerList extends _$WorkerList {
   Future<List<Worker>> build() async {
     final token = ref.read(authProvider).value!;
     try {
-      final response = await Dio().post('${dotenv.env['API_URL']!}workers-list',
+      final response = await Dio().post('${dotenv.env['OWNER_API_URL']!}workers-list',
           options:
               Options(headers: {"Authorization": "Bearer ${token.jwtToken}"}));
       return (response.data as List<dynamic>)
@@ -92,7 +92,7 @@ class WorkerList extends _$WorkerList {
       final token = ref.read(authProvider).value!;
       try {
         final response = await Dio().post(
-            '${dotenv.env['API_URL']!}$link',
+            '${dotenv.env['OWNER_API_URL']!}$link',
             data: {"worker_id": id},
             options:
                 Options(headers: {"Authorization": "Bearer ${token.jwtToken}"}));

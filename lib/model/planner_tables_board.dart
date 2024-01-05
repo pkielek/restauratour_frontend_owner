@@ -234,7 +234,7 @@ class PlannerInfo extends _$PlannerInfo {
     } 
     final token = ref.read(authProvider).value!;
     try {
-      final response = await Dio().get('${dotenv.env['API_URL']!}planner-info',
+      final response = await Dio().get('${dotenv.env['${type.name.toUpperCase()}_API_URL']!}planner-info',
           options:
               Options(headers: {"Authorization": "Bearer ${token.jwtToken}"}));
       return PlannerTablesBoard.fromJson(response.data);
@@ -497,7 +497,7 @@ class PlannerInfo extends _$PlannerInfo {
     final token = ref.read(authProvider).value!;
     try {
       final response = await Dio().post(
-          '${dotenv.env['API_URL']!}save-precision',
+          '${dotenv.env['OWNER_API_URL']!}save-precision',
           data: {"precision": state.value!.precision},
           options:
               Options(headers: {"Authorization": "Bearer ${token.jwtToken}"}));
@@ -519,7 +519,7 @@ class PlannerInfo extends _$PlannerInfo {
     final token = ref.read(authProvider).value!;
     try {
       final response = await Dio().post(
-          '${dotenv.env['API_URL']!}save-planner-info',
+          '${dotenv.env['OWNER_API_URL']!}save-planner-info',
           data: state.value!.toJson(),
           options:
               Options(headers: {"Authorization": "Bearer ${token.jwtToken}"}));
@@ -538,7 +538,7 @@ class PlannerInfo extends _$PlannerInfo {
   Future<void> resetBorders() async {
     final token = ref.read(authProvider).value!;
     try {
-      final response = await Dio().get('${dotenv.env['API_URL']!}planner-info',
+      final response = await Dio().get('${dotenv.env['${type.name.toUpperCase()}_API_URL']!}planner-info',
           options:
               Options(headers: {"Authorization": "Bearer ${token.jwtToken}"}));
       state = AsyncData(state.value!.copyWith(

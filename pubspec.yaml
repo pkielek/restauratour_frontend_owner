@@ -46,6 +46,7 @@ dependencies:
   json_annotation: ^4.8.1
   fluttertoast: ^8.2.4
   flutter_hooks: ^0.20.3
+  url_launcher: ^6.1.8
 #  simple_animations: ^5.0.0+3
 #  auto_size_text: ^3.0.0
 

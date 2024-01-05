@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:restaurant_helper/constants.dart';
 import 'package:restaurant_helper/model/login.dart';
+import 'package:utils/utils.dart';
 
 class EmailField extends ConsumerWidget {
   const EmailField({super.key, required this.onSubmit});

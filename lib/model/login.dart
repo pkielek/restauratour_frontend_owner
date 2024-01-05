@@ -57,7 +57,7 @@ class Login extends _$Login {
           'password': state.value!.password
         });
         final response =
-            await Dio().post('${dotenv.env['API_URL']!}login', data: formData);
+            await Dio().post('${dotenv.env['OWNER_API_URL']!}login', data: formData);
         state = AsyncData(state.value!.copyWith(errorMessage: ""));
         ref.read(authProvider.notifier).login(response.data["access_token"]);
       } on DioException catch (e) {
