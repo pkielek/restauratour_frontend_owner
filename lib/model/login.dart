@@ -4,8 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:utils/utils.dart';
-
-import 'auth.dart';
+import 'package:auth/auth.dart';
 
 part 'login.freezed.dart';
 part 'login.g.dart';

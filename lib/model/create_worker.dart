@@ -2,11 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:restaurant_helper/model/auth.dart';
 import 'package:restaurant_helper/model/worker.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:utils/utils.dart';
+import 'package:auth/auth.dart';
+
 
 part 'create_worker.freezed.dart';
 part 'create_worker.g.dart';

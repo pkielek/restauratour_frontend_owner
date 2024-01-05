@@ -33,6 +33,10 @@ dependencies:
     sdk: flutter
   utils:
     path: ../shared/utils
+  auth:
+    path: ../shared/auth
+  planner:
+    path: ../shared/planner
   image_picker: ^1.0.4
   font_awesome_flutter: ^10.3.0
   dio: ^5.2.0
