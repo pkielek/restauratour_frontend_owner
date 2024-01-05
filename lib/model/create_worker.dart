@@ -75,7 +75,7 @@ class CreateWorkerState extends _$CreateWorkerState {
   void sendForm(RoundedLoadingButtonController controller) async {
     if (state.email.isValidEmail()) {
       try {
-        final token = ref.read(authProvider.notifier).state;
+        final token = ref.read(authProvider);
         final formData = state.toJson();
         final response = await Dio().post(
             '${dotenv.env['API_URL']!}create-worker',

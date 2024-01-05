@@ -14,7 +14,7 @@ class LogoutButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return TextButton(
         style: ButtonStyle(textStyle: MaterialStateProperty.all(inactiveNavigationButtonText), foregroundColor: MaterialStateProperty.all(primaryColor)),
-        onPressed: () => ref.read(authProvider.notifier).logOut(),
+        onPressed: ref.read(authProvider.notifier).logOut,
         child: const Text.rich(TextSpan(children:[TextSpan(text: "Wyloguj się  "), WidgetSpan(child: Icon(Icons.logout))])));
   }
 }

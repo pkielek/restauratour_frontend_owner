@@ -14,29 +14,42 @@ enum AccountStatus {
   @JsonValue("Aktywny") active,
   @JsonValue("Nieaktywny") disabled,
   @JsonValue("Usunięty") deleted,
-  @JsonValue("Zablokowany") blocked
+  @JsonValue("Zablokowany") blocked;
+
+  
+  String get toLabel {
+    switch(this) {
+      case active:
+        return "Aktywny";
+      case disabled:
+        return 'Niekatywny';
+      case deleted:
+        return 'Usunięty';
+      case blocked:
+        return 'Zablokowany';
+    }
+  }
+
+  Color get color {
+    switch(this) {
+      case active:
+        return Colors.green;
+      case disabled:
+      case deleted:
+        return Colors.grey;
+      case blocked:
+        return Colors.red;
+    }
+  }
 }
-
-final accountStatusMap = {
-  AccountStatus.active : "Aktywny",
-  AccountStatus.disabled : "Nieaktywny",
-  AccountStatus.deleted : "Usunięty",
-  AccountStatus.blocked : "Zablokowany"
-};
-
-const accountStatusColorMap = {
-  AccountStatus.active : Colors.green,
-  AccountStatus.disabled : Colors.grey,
-  AccountStatus.blocked : Colors.red,
-  AccountStatus.deleted : Colors.grey,
-};
 
 
 @freezed
 class Worker with _$Worker {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   factory Worker({
     required int id,
-    required String first_name,
+    required String firstName,
     required String surname,
     required String email,
     required AccountStatus status,
@@ -49,7 +62,7 @@ class Worker with _$Worker {
 class WorkerList extends _$WorkerList {
   @override
   Future<List<Worker>> build() async {
-    final token = ref.read(authProvider.notifier).state;
+    final token = ref.read(authProvider);
     try {
       final response = await Dio().post('${dotenv.env['API_URL']!}workers-list',
           options:
@@ -78,7 +91,7 @@ class WorkerList extends _$WorkerList {
     if(!availableActions.contains(link)) {
       fluttertoastDefault('Błąd aplikacji',true);
     } else {
-      final token = ref.read(authProvider.notifier).state;
+      final token = ref.read(authProvider);
       try {
         final response = await Dio().post(
             '${dotenv.env['API_URL']!}$link',

@@ -17,7 +17,7 @@ class WorkerEmailField extends ConsumerWidget {
           if (input == "") return null;
           return input!.isValidEmail() ? null : "Podaj prawidłowy adres e-mail";
         },
-        onChanged: (value) => ref.read(createWorkerStateProvider.notifier).updateEmail(value),
+        onChanged: ref.read(createWorkerStateProvider.notifier).updateEmail,
         onFieldSubmitted: (_) => onSubmit,
         decoration: InputDecoration(
           icon: const Icon(

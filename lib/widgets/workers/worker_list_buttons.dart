@@ -36,7 +36,7 @@ class WorkerListButtons extends ConsumerWidget {
         onPressed: () => showDialog(context: context, builder: (context) => AlertDialog(
           title: const Text("Usuń kelnera", style: TextStyle(color:primaryColor, fontWeight: FontWeight.w700)),
           insetPadding: const EdgeInsets.all(100),
-          content: Text("Czy na pewno chcesz usunąć kelnera ${workerData.first_name} ${workerData.surname}?"),
+          content: Text("Czy na pewno chcesz usunąć kelnera ${workerData.firstName} ${workerData.surname}?"),
           actions: <Widget>[
             TextButton(onPressed: () {
               ref.read(workerListProvider.notifier).workerAction(workerData.id,'remove-worker');

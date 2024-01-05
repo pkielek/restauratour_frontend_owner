@@ -5,7 +5,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:restaurant_helper/constants.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../providers/basic_providers.dart';
+import 'basic_providers.dart';
 
 part 'auth.freezed.dart';
 part 'auth.g.dart';
@@ -69,7 +69,6 @@ class Jwt with _$Jwt {
 
 @Riverpod(keepAlive: true)
 class Auth extends _$Auth {
-  get getUsername => null;
 
   @override
   Jwt build() {

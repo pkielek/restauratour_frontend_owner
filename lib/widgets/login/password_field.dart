@@ -33,7 +33,7 @@ class PasswordField extends ConsumerWidget {
             ? "Hasło jest za krótkie"
             : null,
         onChanged: (value) => ref.read(passwordProvider.notifier).state = value,
-        onFieldSubmitted: (_) => onSubmit,
+        onFieldSubmitted: (_) => onSubmit(),
         obscureText: !ref.watch(showPasswordProvider),
         decoration: InputDecoration(
           icon: const Icon(Icons.key, color: Colors.black),

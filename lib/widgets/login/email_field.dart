@@ -11,13 +11,14 @@ class EmailField extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
     return TextFormField(
         validator: (input) {
           if (input == "") return null;
           return input!.isValidEmail() ? null : "Podaj prawidłowy adres e-mail";
         },
         onChanged: (value) => ref.read(emailProvider.notifier).state = value,
-        onFieldSubmitted: (_) => onSubmit,
+        onFieldSubmitted: (_) => onSubmit(),
         decoration: InputDecoration(
           icon: const Icon(
             Icons.person,

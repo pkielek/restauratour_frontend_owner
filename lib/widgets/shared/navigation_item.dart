@@ -26,7 +26,7 @@ class NavigationItem extends ConsumerWidget {
             foregroundColor: currentRoute
                 ? MaterialStateProperty.all(primaryColor)
                 : MaterialStateProperty.resolveWith(
-                    (states) => navigationColor(states))),
+                    navigationColor)),
         child: Text(routeName));
   }
 }

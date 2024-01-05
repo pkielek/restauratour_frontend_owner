@@ -24,13 +24,13 @@ class WorkerTile extends ConsumerWidget {
         children: [
           RichText(
               text: TextSpan(
-                  text: '${workerData.first_name} ${workerData.surname}',
+                  text: '${workerData.firstName} ${workerData.surname}',
                   style: listStyle,
                   children: [
                 TextSpan(text: '\n${workerData.email}', style: smallDetailStyle)
               ])),
-          Text(accountStatusMap[workerData.status]!,
-              style: TextStyle(color: accountStatusColorMap[workerData.status], fontWeight: FontWeight.w500, fontSize: 16)),
+          Text(workerData.status.toLabel,
+              style: TextStyle(color: workerData.status.color, fontWeight: FontWeight.w500, fontSize: 16)),
           WorkerListButtons(workerData)
         ],
       ),

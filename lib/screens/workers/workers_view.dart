@@ -29,9 +29,8 @@ class WorkersView extends ConsumerWidget {
                 const Text("Lista kelnerów", style: headerStyle),
                 IconButton(
                     constraints: const BoxConstraints(),
-                    padding: const EdgeInsets.only(right:10),
-                    onPressed: () =>
-                        ref.read(workerListProvider.notifier).refresh(),
+                    padding: const EdgeInsets.only(right: 10),
+                    onPressed: ref.read(workerListProvider.notifier).refresh,
                     icon: const Icon(Icons.refresh),
                     splashRadius: 20,
                     iconSize: 24,

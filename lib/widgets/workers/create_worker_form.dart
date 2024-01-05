@@ -17,7 +17,7 @@ class CreateWorkerForm extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(createWorkerStateProvider.notifier).state;
+    ref.watch(createWorkerStateProvider);
     final emailController = useTextEditingController();
     final firstNameController = useTextEditingController();
     final surnameController = useTextEditingController();
@@ -27,7 +27,6 @@ class CreateWorkerForm extends HookConsumerWidget {
       "surname": surnameController
     }));
 
-    Size size = MediaQuery.of(context).size;  
     return Expanded(
         child: Align(
             alignment: Alignment.centerLeft,

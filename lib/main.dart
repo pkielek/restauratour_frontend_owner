@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/constants.dart';
-import 'package:restaurant_helper/providers/basic_providers.dart';
+import 'package:restaurant_helper/model/basic_providers.dart';
 import 'package:restaurant_helper/routes.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:shared_preferences/shared_preferences.dart';

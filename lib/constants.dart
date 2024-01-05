@@ -16,9 +16,9 @@ const primarySwatch = MaterialColor(0xffa30015, <int, Color>{
   50: Color(0xFFFCE9EC)
 });
 
-void fluttertoastDefault(String message, [bool error = false]) {
+void fluttertoastDefault(String message,[bool error = false,int timeInSec = 3]) {
   final String color = error ? '#f44336' : '#4caf50';
-  Fluttertoast.showToast(msg: message,gravity: ToastGravity.TOP, timeInSecForIosWeb: 3,webBgColor: color);
+  Fluttertoast.showToast(msg: message,gravity: ToastGravity.TOP, timeInSecForIosWeb: timeInSec,webBgColor: color);
 }
 
 final Future<SharedPreferences> prefs = SharedPreferences.getInstance();

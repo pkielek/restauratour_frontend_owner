@@ -20,7 +20,7 @@ class Navbar extends ConsumerWidget {
         padding: EdgeInsets.symmetric(horizontal: size.width*0.15),
         height: navbarHeight,
         decoration: const BoxDecoration(
-            border: BorderDirectional(bottom: BorderSide(width: 1,color:Colors.grey))),
+            border: Border(bottom: BorderSide(width: 1,color:Colors.black))),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
           AspectRatio(
