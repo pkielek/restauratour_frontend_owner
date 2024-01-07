@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/model/create_worker.dart';
+import 'package:utils/utils.dart';
 
 class WorkerDataField extends ConsumerWidget {
   const WorkerDataField(
@@ -23,13 +24,7 @@ class WorkerDataField extends ConsumerWidget {
             .read(createWorkerStateProvider.notifier)
             .updateField(fieldName, value),
         onFieldSubmitted: (_) => onSubmit,
-        decoration: InputDecoration(
-          icon: const Icon(
-            Icons.person,
-            color: Colors.black,
-          ),
-          labelText: fieldShownName,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
-        ));
+        decoration: defaultDecoration(icon:Icons.person,labelText:fieldShownName),
+        );
   }
 }

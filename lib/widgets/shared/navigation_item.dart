@@ -17,7 +17,21 @@ class NavigationItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return TextButton(
-        onPressed: () => Routemaster.of(context).push(route),
+        onPressed: () => ref.read(unsavedChangesProvider.notifier).state == false ? Routemaster.of(context).push(route) :
+               showDialog(context: context, builder: (context) => AlertDialog(
+          title: const Text("Niezapisane zmiany", style: TextStyle(color:primaryColor, fontWeight: FontWeight.w700)),
+          insetPadding: const EdgeInsets.all(100),
+          content: Text("Obecny widok ma niezapisane zmiany, czy chcesz kontynuować?"),
+          actions: <Widget>[
+            TextButton(onPressed: () {
+              Navigator.pop(context, 'Tak');
+              Routemaster.of(context).push(route);
+              ref.read(unsavedChangesProvider.notifier).state = false;
+            }, child: const Text('Tak',style: TextStyle(fontWeight: FontWeight.bold),)),
+            TextButton(onPressed: () => Navigator.pop(context,'Anuluj'), child: const Text('Anuluj'))
+          ]
+
+        ),),
         style: ButtonStyle(
             textStyle: MaterialStateProperty.all(currentRoute
                 ? activeNavigationButtonText

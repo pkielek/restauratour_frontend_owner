@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:restaurant_helper/screens/login/login_view.dart';
-import 'package:restaurant_helper/screens/workers/workers_view.dart';
-import 'package:restaurant_helper/screens/planner/planner_view.dart';
+import 'package:restaurant_helper/screens/info_view.dart';
+import 'package:restaurant_helper/screens/login_view.dart';
+import 'package:restaurant_helper/screens/workers_view.dart';
+import 'package:restaurant_helper/screens/planner_view.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:utils/utils.dart';
 
@@ -16,10 +17,10 @@ final loadingRoute = RouteMap(routes: {
 }, onUnknownRoute: (_) => const MaterialPage(child:LoadingScreen()));
 
 final navigationRoutes = {
-  '/pulpit': (_) => const MaterialPage(child:PlannerView(),name:'Pulpit'),
+  '/pulpit': (_) => const MaterialPage(child:PlannerView(),name:'Plan restauracji'),
   '/menu': (_) => const MaterialPage(child:PlannerView(), name:'Menu'),
   '/kelnerzy': (_) => const MaterialPage(child:WorkersView(), name:'Kelnerzy'),
-  '/restauracja': (_) => const MaterialPage(child:PlannerView(), name:'Restauracja'),
+  '/restauracja': (_) => const MaterialPage(child:InfoView(), name:'Ustawienia'),
 };
 
 final routes = RouteMap(routes: {

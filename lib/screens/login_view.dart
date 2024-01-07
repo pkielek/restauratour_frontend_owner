@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/model/login.dart';
-import 'package:restaurant_helper/widgets/login/email_field.dart';
+import 'package:restaurant_helper/widgets/shared/email_field.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:utils/utils.dart';
 
@@ -45,6 +45,9 @@ class LoginView extends ConsumerWidget {
                                 AutovalidateMode.onUserInteraction,
                             child: Column(children: [
                               EmailField(
+                                  onChanged: ref
+                                      .read(loginProvider.notifier)
+                                      .updateEmail,
                                   onSubmit:
                                       ref.read(loginProvider.notifier).login),
                               const SizedBox(height: 15),

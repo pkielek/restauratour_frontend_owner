@@ -12,6 +12,13 @@ class PlannerView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = ref.watch(PlannerInfoProvider(AuthType.owner));
     final notifier = ref.read(PlannerInfoProvider(AuthType.owner).notifier);
+      ref.listen(
+        PlannerInfoProvider(AuthType.owner).select((value) => value.when(
+            data: (data) => data.isChanged,
+            error: (_, __) => false,
+            loading: () => false)), (previous, next) {
+      ref.read(unsavedChangesProvider.notifier).state = next;
+    });
     return BaseView(
         screen: provider.when(
             data: (board) {
@@ -24,8 +31,8 @@ class PlannerView extends ConsumerWidget {
                 ],
               );
             },
-            error: (error, stackTrace) =>
-                const Loading("Coś poszło nie tak. Spróbuj ponownie później"),
+            error: (error, stackTrace) {
+                return const Loading("Coś poszło nie tak. Spróbuj ponownie później");},
             loading: () =>
                 const Loading("Trwa ładowanie planu restauracji...")));
   }

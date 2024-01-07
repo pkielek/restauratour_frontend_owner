@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/model/create_worker.dart';
+import 'package:restaurant_helper/widgets/shared/email_field.dart';
 import 'package:restaurant_helper/widgets/workers/worker_data_field.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:utils/utils.dart';
-
-import 'worker_email_field.dart';
 
 class CreateWorkerForm extends HookConsumerWidget {
   final RoundedLoadingButtonController _submitController =
       RoundedLoadingButtonController();
 
   CreateWorkerForm({super.key});
-  
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,28 +19,32 @@ class CreateWorkerForm extends HookConsumerWidget {
     final emailController = useTextEditingController();
     final firstNameController = useTextEditingController();
     final surnameController = useTextEditingController();
-    WidgetsBinding.instance.addPostFrameCallback((_) => ref.read(createWorkerStateProvider.notifier).updateControllers({
-      "email": emailController,
-      "firstName": firstNameController,
-      "surname": surnameController
-    }));
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => ref.read(createWorkerStateProvider.notifier).updateControllers({
+              "email": emailController,
+              "firstName": firstNameController,
+              "surname": surnameController
+            }));
 
     return Expanded(
         child: Align(
             alignment: Alignment.centerLeft,
             child: Padding(
-              padding: const EdgeInsets.only(top:10.0,left:10, right:10),
+              padding: const EdgeInsets.only(top: 10.0, left: 10, right: 10),
               child: Form(
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: Column(children: [
-                    WorkerEmailField(
-                        controller:emailController,
+                    EmailField(
+                        controller: emailController,
+                        onChanged: ref
+                            .read(createWorkerStateProvider.notifier)
+                            .updateEmail,
                         onSubmit: () => ref
                             .read(createWorkerStateProvider.notifier)
                             .sendForm(_submitController)),
                     const SizedBox(height: 15),
                     WorkerDataField(
-                        controller:firstNameController,
+                        controller: firstNameController,
                         onSubmit: () => ref
                             .read(createWorkerStateProvider.notifier)
                             .sendForm(_submitController),
@@ -50,7 +52,7 @@ class CreateWorkerForm extends HookConsumerWidget {
                         fieldShownName: "Imię"),
                     const SizedBox(height: 15),
                     WorkerDataField(
-                        controller:surnameController,
+                        controller: surnameController,
                         onSubmit: () => ref
                             .read(createWorkerStateProvider.notifier)
                             .sendForm(_submitController),

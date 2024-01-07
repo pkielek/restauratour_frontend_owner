@@ -24,21 +24,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
       title: 'Restaurant Helper',
-      theme: ThemeData(
-          primarySwatch: primarySwatch,
-          colorScheme: ColorScheme.fromSeed(seedColor: primarySwatch),
-          scaffoldBackgroundColor: Colors.white,
-          fontFamily: 'Montserrat',
-          inputDecorationTheme: InputDecorationTheme(
-              prefixIconColor: Colors.black,
-              suffixIconColor: Colors.black,
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                  borderSide: const BorderSide(color: Colors.black))),
-          scrollbarTheme: const ScrollbarThemeData(
-              thumbColor: MaterialStatePropertyAll(Colors.grey),
-              thickness: MaterialStatePropertyAll(5),
-              thumbVisibility: MaterialStatePropertyAll(true))),
+      theme: themeData,
       routerDelegate: RoutemasterDelegate(
           routesBuilder: (context) => ref.watch(authProvider).when(
                 data: (data) => data.isLogged
