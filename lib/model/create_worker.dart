@@ -81,12 +81,10 @@ class CreateWorkerState extends _$CreateWorkerState {
             data: formData,
             options: Options(
                 headers: {"Authorization": "Bearer ${token.jwtToken}"}));
-        controller.reset();
         resetForm();
         fluttertoastDefault(response.data['message']);
         ref.read(workerListProvider.notifier).refresh();
       } on DioException catch (e) {
-        controller.error();
         if (e.response != null) {
           Map responseBody = e.response!.data;
           fluttertoastDefault(responseBody['detail'], true);
@@ -97,7 +95,6 @@ class CreateWorkerState extends _$CreateWorkerState {
       }
     } else {
       fluttertoastDefault("Pola nie zostały wypełnione poprawnie", true);
-      controller.error();
     }
   }
 }

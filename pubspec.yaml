@@ -54,6 +54,7 @@ dependencies:
   google_maps_flutter: ^2.5.1
   google_geocoding_api: ^1.4.1
   intl_phone_field: ^3.2.0
+  reorderable_grid_view: ^2.2.8
 #  simple_animations: ^5.0.0+3
 #  auto_size_text: ^3.0.0
 

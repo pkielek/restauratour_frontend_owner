@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/phone_number.dart';
 import 'package:restaurant_helper/model/restaurant_info.dart';
 import 'package:restaurant_helper/screens/base_view.dart';
+import 'package:restaurant_helper/widgets/info/info_change_password_dialog.dart';
 import 'package:restaurant_helper/widgets/info/restaurant_hour_text_field.dart';
 import 'package:restaurant_helper/widgets/info/restaurant_info_map.dart';
 import 'package:restaurant_helper/widgets/shared/email_field.dart';
@@ -12,7 +12,6 @@ import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:utils/utils.dart';
 
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'dart:html' as html;
 
 class InfoView extends ConsumerWidget {
   const InfoView({super.key});
@@ -167,7 +166,7 @@ class InfoView extends ConsumerWidget {
                             ),
                             Expanded(
                                 child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 for (final flag in data.flags)
                                   CheckboxListTile(
@@ -183,8 +182,19 @@ class InfoView extends ConsumerWidget {
                                             fontWeight: FontWeight.w600)),
                                     subtitle: Text(flag.description ?? ""),
                                   ),
+                                const Padding(padding: EdgeInsets.only(top: 8)),
+                                FilledButton(
+                                    onPressed: () => showDialog(
+                                          context: context,
+                                          builder: (context) =>
+                                              InfoChangePasswordDialog(
+                                                  password: data.newPassword,
+                                                  confirmPassword:
+                                                      data.confirmNewPassword),
+                                        ),
+                                    child: Text("Zmień hasło")),
                                 const Padding(
-                                  padding: EdgeInsets.only(bottom: 32),
+                                  padding: EdgeInsets.only(bottom: 16),
                                 ),
                                 RestaurantInfoMap(width: widthPadded * 0.48)
                               ],
@@ -210,9 +220,9 @@ class InfoView extends ConsumerWidget {
                 ),
               );
             },
-            error: (error, stackTrace) => const Center(
+            error: (error, stackTrace) => Center(
                     child: Text(
-                  "Coś poszło nie tak, spróbuj ponownie później lub odśwież stronę",
+                  error.toString(),
                   style: boldBig,
                 )),
             loading: () =>

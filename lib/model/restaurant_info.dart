@@ -71,7 +71,15 @@ class RestaurantInfo with _$RestaurantInfo {
       @JsonKey(includeToJson: false) required String streetNumber,
       @JsonKey(includeToJson: false) required String city,
       @JsonKey(includeToJson: false) required String postalCode,
-      @JsonKey(includeFromJson: false, includeToJson: false) @Default(false) isChanged,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      @Default(false)
+      isChanged,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      @Default("")
+      String newPassword,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      @Default("")
+      String confirmNewPassword,
       required String email,
       required String phoneNumber,
       required List<RestaurantFlag> flags,
@@ -80,6 +88,8 @@ class RestaurantInfo with _$RestaurantInfo {
       _$RestaurantInfoFromJson(json);
 
   String get toFullAddress => "$streetNumber, $postalCode $city, $country";
+
+  bool get areNewPasswordsIdentical => newPassword == confirmNewPassword;
 }
 
 @riverpod
@@ -103,23 +113,10 @@ class Info extends _$Info {
     } on DioException catch (e) {
       if (e.response != null) {
         Map responseBody = e.response!.data;
-        fluttertoastDefault(responseBody['detail'], true);
+        throw responseBody['detail'];
       } else {
-        fluttertoastDefault(
-            "Coś poszło nie tak przy wczytywaniu danych restauracji. Spróbuj ponownie później",
-            true);
+        throw "Coś poszło nie tak, spróbuj ponownie później lub odśwież stronę";
       }
-      return RestaurantInfo(
-          name: "",
-          nip: "",
-          country: "",
-          city: "",
-          streetNumber: "",
-          postalCode: "",
-          email: "",
-          phoneNumber: "",
-          flags: [],
-          openingHours: {});
     }
   }
 
@@ -128,12 +125,12 @@ class Info extends _$Info {
   }
 
   void updatePhoneNumber(PhoneNumber phoneNumber) {
-    state = AsyncData(
-        state.value!.copyWith(phoneNumber: phoneNumber.completeNumber, isChanged: true));
+    state = AsyncData(state.value!
+        .copyWith(phoneNumber: phoneNumber.completeNumber, isChanged: true));
   }
 
   void toggleCheckbox(int id) {
-    state = AsyncData(state.value!.copyWith(isChanged:true, flags: [
+    state = AsyncData(state.value!.copyWith(isChanged: true, flags: [
       for (final flag in state.value!.flags)
         if (flag.id == id) flag.copyWith(setting: !flag.setting) else flag
     ]));
@@ -142,7 +139,7 @@ class Info extends _$Info {
   void updateOpenTime(int day, String? time) {
     if (time == null ||
         state.value!.openingHours[day]!.openTimeValidator(time) != null) return;
-    state = AsyncData(state.value!.copyWith(isChanged:true, openingHours: {
+    state = AsyncData(state.value!.copyWith(isChanged: true, openingHours: {
       for (final value in state.value!.openingHours.entries.toList())
         if (value.key == day)
           value.key: value.value.copyWith(
@@ -157,7 +154,7 @@ class Info extends _$Info {
     if (time == null ||
         state.value!.openingHours[day]!.closeTimeValidator(time) != null)
       return;
-    state = AsyncData(state.value!.copyWith(isChanged: true,openingHours: {
+    state = AsyncData(state.value!.copyWith(isChanged: true, openingHours: {
       for (final value in state.value!.openingHours.entries.toList())
         if (value.key == day)
           value.key: value.value.copyWith(
@@ -169,7 +166,7 @@ class Info extends _$Info {
   }
 
   void toggleClosed(int day) {
-    state = AsyncData(state.value!.copyWith(isChanged:true,openingHours: {
+    state = AsyncData(state.value!.copyWith(isChanged: true, openingHours: {
       for (final value in state.value!.openingHours.entries.toList())
         if (value.key == day)
           value.key: value.value.copyWith(
@@ -180,7 +177,7 @@ class Info extends _$Info {
   }
 
   void toggleTemporary(int day) {
-    state = AsyncData(state.value!.copyWith(isChanged:true,openingHours: {
+    state = AsyncData(state.value!.copyWith(isChanged: true, openingHours: {
       for (final value in state.value!.openingHours.entries.toList())
         if (value.key == day)
           value.key: value.value.copyWith(temporary: !value.value.temporary)
@@ -189,14 +186,60 @@ class Info extends _$Info {
     }));
   }
 
+  void updateNewPassword(String? input) {
+    if (input == null) return;
+    state = AsyncData(state.value!.copyWith(newPassword: input));
+  }
+
+  void updateConfirmNewPassword(String? input) {
+    if (input == null) return;
+    state = AsyncData(state.value!.copyWith(confirmNewPassword: input));
+  }
+
+  void cancelPasswordUpdate() {
+    state = AsyncData(
+        state.value!.copyWith(newPassword: "", confirmNewPassword: ""));
+  }
+
+  Future<bool> saveNewPassword() async {
+    if (validatePassword(state.value!.newPassword).isNotEmpty ||
+        state.value!.confirmNewPassword != state.value!.newPassword) {
+      fluttertoastDefault(
+          "Nowe hasło nie spełnia wymagań - odnieś się do błędów pod polami",
+          true);
+      return false;
+    }
+    try {
+      final token = ref.read(authProvider).value!;
+      await Dio().post('${dotenv.env['OWNER_API_URL']!}update-password',
+          data: {
+            "new_password": state.value!.newPassword,
+            "confirm_password": state.value!.confirmNewPassword
+          },
+          options:
+              Options(headers: {"Authorization": "Bearer ${token.jwtToken}"}));
+      fluttertoastDefault("Dane zapisano poprawnie!");
+      cancelPasswordUpdate();
+      return true;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        Map responseBody = e.response!.data;
+        fluttertoastDefault(responseBody['detail'], true);
+      } else {
+        fluttertoastDefault(
+            "Coś poszło nie tak. Spróbuj jeszcze raz ponownie", true);
+      }
+      return false;
+    }
+  }
+
   void saveData() async {
     try {
       final token = ref.read(authProvider).value!;
-      await Dio().post(
-          '${dotenv.env['OWNER_API_URL']!}save-restaurant-info',
+      await Dio().post('${dotenv.env['OWNER_API_URL']!}save-restaurant-info',
           data: state.value!.toJson(),
-          options: Options(
-                headers: {"Authorization": "Bearer ${token.jwtToken}"}));
+          options:
+              Options(headers: {"Authorization": "Bearer ${token.jwtToken}"}));
       fluttertoastDefault("Dane zapisano poprawnie!");
       state = AsyncData(state.value!.copyWith(isChanged: false));
     } on DioException catch (e) {
