@@ -5,8 +5,9 @@ import 'package:restaurant_helper/model/restaurant_menu.dart';
 import 'package:restaurant_helper/screens/base_view.dart';
 import 'package:restaurant_helper/widgets/menu/menu_category_tile.dart';
 import 'package:restaurant_helper/widgets/menu/menu_item_edit_dialog.dart';
+import 'package:restaurant_helper/widgets/menu/menu_item_tile.dart';
+import 'package:restaurant_helper/widgets/menu/menu_upload_photo_tile.dart';
 import 'package:utils/utils.dart';
-import 'package:image_picker/image_picker.dart';
 
 class MenuView extends ConsumerWidget {
   const MenuView({super.key});
@@ -30,7 +31,7 @@ class MenuView extends ConsumerWidget {
                       Expanded(
                           child: SingleChildScrollView(
                         child: Padding(
-                          padding: EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.only(right: 8),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
@@ -40,31 +41,14 @@ class MenuView extends ConsumerWidget {
                                 textAlign: TextAlign.center,
                               ),
                               headerLeftDivider,
-                              Tooltip(
-                                message: "Dodaj zdjęcie główne",
-                                child: AspectRatio(
-                                  aspectRatio: 2.0,
-                                  child: OutlinedButton(
-                                    style: const ButtonStyle(
-                                        side: MaterialStatePropertyAll(
-                                            BorderSide(
-                                                color: Colors.black,
-                                                width: 3.0)),
-                                        shape: MaterialStatePropertyAll(
-                                            RoundedRectangleBorder())),
-                                    child: const Icon(
-                                      Icons.photo,
-                                      color: primaryColor,
-                                      size: 96,
-                                    ),
-                                    onPressed: () async {
-                                      final picker = ImagePicker();
-                                      final image = await picker.pickImage(source: ImageSource.gallery);
-                                      print(await image!.readAsBytes());
-                                    },
-                                  ),
-                                ),
-                              ),
+                              Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: MenuUploadPhotoTile(
+                                      photoUrl: menu.photoUrl,
+                                      showUpload: () => uploadRestaurantFile(
+                                          context,
+                                          notifier.uploadRestaurantImage),
+                                      isMain: true)),
                               ReorderableListView(
                                 buildDefaultDragHandles: !menu.menu
                                     .any((element) => element.isPending),
@@ -82,7 +66,7 @@ class MenuView extends ConsumerWidget {
                                 children: [
                                   for (final category in menu.menu)
                                     MenuCategoryTile(
-                                        key: Key('${category.id}'),
+                                        key: Key('cat:${category.id}'),
                                         notifier: notifier,
                                         category: category,
                                         isSelected: menu.selectedCategory ==
@@ -110,55 +94,102 @@ class MenuView extends ConsumerWidget {
                                             .name,
                                     style: headerStyle),
                               ),
-                              headerDivider,
+                              headerRightDivider,
                               Padding(
                                 padding: const EdgeInsets.only(left: 12.0),
-                                child: ReorderableGridView.count(
-                                    childAspectRatio: 2.5,
-                                    crossAxisCount: 2,
-                                    shrinkWrap: true,
-                                    onReorder: (_, __) => null,
-                                    footer: [
-                                      OutlinedButton(
-                                        style: const ButtonStyle(
-                                            side: MaterialStatePropertyAll(
-                                                BorderSide(
-                                                    color: Colors.black,
-                                                    width: 3.0)),
-                                            shape: MaterialStatePropertyAll(
-                                                RoundedRectangleBorder())),
-                                        child: const Icon(
-                                          Icons.add,
-                                          color: primaryColor,
-                                          size: 96,
-                                        ),
-                                        onPressed: () => showDialog(
-                                          barrierDismissible: false,
-                                          context: context,
-                                          builder: (context) =>
-                                              MenuItemEditDialog(
-                                                  onConfirm: () => null,
+                                child: SingleChildScrollView(
+                                  child: ReorderableGridView.count(
+                                      mainAxisSpacing: 8,
+                                      crossAxisSpacing: 8,
+                                      childAspectRatio: 2.5,
+                                      crossAxisCount: 2,
+                                      shrinkWrap: true,
+                                      onReorder: notifier.itemReorder,
+                                      dragEnabled: !menu.menu
+                                          .firstWhere((element) =>
+                                              element.id ==
+                                              menu.selectedCategory)
+                                          .items
+                                          .any((element) => element.isPending),
+                                      footer: [
+                                        OutlinedButton(
+                                          style: ButtonStyle(
+                                              side:
+                                                  const MaterialStatePropertyAll(
+                                                      BorderSide(
+                                                          color: Colors.black,
+                                                          width: 2.0)),
+                                              shape: MaterialStatePropertyAll(
+                                                  RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8)))),
+                                          child: const Icon(
+                                            Icons.add,
+                                            color: primaryColor,
+                                            size: 96,
+                                          ),
+                                          onPressed: () {
+                                            ref
+                                                .read(RestaurantMenuProvider()
+                                                    .notifier)
+                                                .setEditedItem(RestaurantMenuItem(
+                                                    id: -1,
+                                                    name: "",
+                                                    description: "",
+                                                    price: 0.00,
+                                                    order: -1,
+                                                    status:
+                                                        RestaurantMenuItemType
+                                                            .inactive,
+                                                    photoUrl: ""));
+                                            showDialog(
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder: (context) => MenuItemEditDialog(
+                                                  item: RestaurantMenuItem(
+                                                      id: -1,
+                                                      name: "",
+                                                      description: "",
+                                                      price: 0.00,
+                                                      order: -1,
+                                                      status:
+                                                          RestaurantMenuItemType
+                                                              .inactive,
+                                                      photoUrl: ""),
+                                                  notifier: notifier,
                                                   padding: EdgeInsets.symmetric(
                                                       horizontal:
-                                                          0.4 * widthPadded,
+                                                          0.2 * widthPadded,
                                                       vertical:
                                                           MediaQuery.of(context)
                                                                   .size
                                                                   .height *
-                                                              0.15)),
-                                        ),
-                                      )
-                                    ],
-                                    children: [
-                                      for (final item in menu.menu
-                                          .firstWhere((element) =>
-                                              element.id ==
-                                              menu.selectedCategory)
-                                          .items)
-                                        Container(
-                                          key: Key('${item.id}'),
+                                                              0.05)),
+                                            );
+                                          },
                                         )
-                                    ]),
+                                      ],
+                                      children: [
+                                        for (final item in menu.menu
+                                            .firstWhere((element) =>
+                                                element.id ==
+                                                menu.selectedCategory)
+                                            .items)
+                                          MenuItemTile(
+                                              parentSize:
+                                                  MediaQuery.of(context).size,
+                                              key: Key('item:${item.id}'),
+                                              item: item,
+                                              editable: !menu.menu
+                                                  .firstWhere((element) =>
+                                                      element.id ==
+                                                      menu.selectedCategory)
+                                                  .items
+                                                  .any((element) =>
+                                                      element.isPending))
+                                      ]),
+                                ),
                               ),
                             ],
                           ))

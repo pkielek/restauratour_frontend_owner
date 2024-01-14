@@ -63,7 +63,7 @@ class CreateWorkerForm extends HookConsumerWidget {
                       color: primaryColor,
                       successIcon: Icons.done,
                       failedIcon: Icons.close,
-                      resetDuration: Duration(seconds: 2),
+                      resetDuration: const Duration(seconds: 2),
                       resetAfterDuration: true,
                       width: 2000,
                       controller: _submitController,

@@ -192,7 +192,7 @@ class InfoView extends ConsumerWidget {
                                                   confirmPassword:
                                                       data.confirmNewPassword),
                                         ),
-                                    child: Text("Zmień hasło")),
+                                    child: const Text("Zmień hasło")),
                                 const Padding(
                                   padding: EdgeInsets.only(bottom: 16),
                                 ),

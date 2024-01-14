@@ -12,7 +12,7 @@ class InfoChangePasswordDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AlertDialog(
-      title: Text("Zmień hasło"),
+      title: const Text("Zmień hasło"),
       content: IntrinsicHeight(
         child: SizedBox(
           width: MediaQuery.of(context).size.width * 0.5,
@@ -51,7 +51,7 @@ class InfoChangePasswordDialog extends ConsumerWidget {
       ),
       actions: <Widget>[
         IconButton(
-            icon: Icon(Icons.save),
+            icon: const Icon(Icons.save),
             color: Colors.indigo,
             tooltip: "Zapisz hasło",
             onPressed: () async {

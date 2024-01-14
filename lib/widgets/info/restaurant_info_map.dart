@@ -10,11 +10,7 @@ class RestaurantInfoMap extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-        color: Colors.grey.shade200,
-        width: width,
-        height: 400,
-        child: const Loading("Trwa ładowanie mapy"));
+
     return ref.watch(restaurantMapProvider()).when(
         data: (mapData) {
           final location = mapData.results.first.geometry!.location;
@@ -24,7 +20,7 @@ class RestaurantInfoMap extends ConsumerWidget {
             child: GoogleMap(
                 markers: {
                   Marker(
-                      markerId: MarkerId(""),
+                      markerId: const MarkerId(""),
                       position: LatLng(location.lat, location.lng))
                 },
                 initialCameraPosition: CameraPosition(

@@ -27,7 +27,7 @@ class MenuCategoryTile extends ConsumerWidget {
                     value ? notifier.selectCategory(category.id) : null,
                 child: TextFormField(
                   inputFormatters: [
-                    FilteringTextInputFormatter.deny(new RegExp(r"\n"))
+                    FilteringTextInputFormatter.deny(RegExp(r"\n"))
                   ],
                   onTap: () => notifier.selectCategory(category.id),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -94,7 +94,7 @@ class MenuCategoryTile extends ConsumerWidget {
                         }),
                   ),
                 )),
-            Expanded(child: SizedBox())
+            const Expanded(child: SizedBox())
           ],
         ));
   }

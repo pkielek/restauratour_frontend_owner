@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:auth/auth.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -11,12 +13,34 @@ part 'restaurant_menu.g.dart';
 part 'restaurant_menu.freezed.dart';
 
 enum RestaurantMenuItemType {
+  @JsonValue("Dostępny")
+  available,
   @JsonValue("Nieaktywny")
   inactive,
   @JsonValue("Niedostępny")
-  unavailable,
-  @JsonValue("Dostępny")
-  available;
+  unavailable;
+
+  String get label {
+    switch (this) {
+      case inactive:
+        return "Nieaktywny";
+      case unavailable:
+        return "Niedostępny";
+      case available:
+        return "Dostępny";
+    }
+  }
+
+  Icon get icon {
+    switch (this) {
+      case inactive:
+        return const Icon(Icons.close, color: Colors.grey);
+      case unavailable:
+        return const Icon(Icons.block, color: primaryColor);
+      case available:
+        return const Icon(Icons.done, color: Colors.green);
+    }
+  }
 }
 
 @freezed
@@ -29,17 +53,22 @@ class RestaurantMenuItem with _$RestaurantMenuItem {
     required double price,
     required int order,
     required RestaurantMenuItemType status,
-    required String? photoUrl,
+    required String photoUrl,
+    @JsonKey(ignore: true) @Default(false) bool isPending,
   }) = _RestaurantMenuItem;
   factory RestaurantMenuItem.fromJson(Map<String, dynamic> json) =>
       _$RestaurantMenuItemFromJson(json);
 
   static double? priceValidate(String value) {
-    return RegExp(r'^([1-9][0-9]{0,3}[.,][0-9]{2}|0[,.][1-9][0-9])$').hasMatch(value) ? double.parse(value.replaceAll(',','.')) : null;
+    return RegExp(r'^(:?[1-9][0-9]{0,3}[.,][0-9]{2}|0[,.][1-9][0-9])$')
+            .hasMatch(value)
+        ? double.parse(value.replaceAll(',', '.'))
+        : null;
   }
-  
+
   bool get isValid {
-    if(name.length<3) return false;
+    if (name.length < 3) return false;
+    if (price < 0.10 || price > 9999.99) return false;
     return true;
   }
 }
@@ -64,6 +93,7 @@ class RestaurantMenuCategory with _$RestaurantMenuCategory {
 class RestaurantMenuInfo with _$RestaurantMenuInfo {
   factory RestaurantMenuInfo(
           {required List<RestaurantMenuCategory> menu,
+          required String photoUrl,
           @JsonKey(ignore: true) @Default(0) int selectedCategory,
           @JsonKey(ignore: true) RestaurantMenuItem? editedItem}) =
       _RestaurantMenuInfo;
@@ -88,11 +118,22 @@ class RestaurantMenu extends _$RestaurantMenu {
               : null,
           options:
               Options(headers: {"Authorization": "Bearer ${token.jwtToken}"}));
-      final menu = (response.data as List<dynamic>)
+      Map responseBody = response.data;
+      final menu = (responseBody['menu'] as List<dynamic>)
           .map((e) => RestaurantMenuCategory.fromJson(e))
           .toList();
       return RestaurantMenuInfo(
-          menu: menu, selectedCategory: menu.isNotEmpty ? menu[0].id : 0);
+          menu: menu,
+          selectedCategory: menu.isNotEmpty ? menu[0].id : 0,
+          photoUrl: responseBody['photo_url'],
+          editedItem: RestaurantMenuItem(
+              id: -1,
+              name: "",
+              description: "",
+              price: 0.00,
+              order: -1,
+              status: RestaurantMenuItemType.inactive,
+              photoUrl: ""));
     } on DioException catch (e) {
       if (e.response != null) {
         Map responseBody = e.response!.data;
@@ -100,6 +141,33 @@ class RestaurantMenu extends _$RestaurantMenu {
       } else {
         throw "Coś poszło nie tak, spróbuj ponownie później lub odśwież stronę";
       }
+    }
+  }
+
+  Future<bool> uploadRestaurantImage(Uint8List bytes) async {
+    if(restaurantId != null) return false;
+    try {
+      final token = ref.read(authProvider).value!;
+      final formData = FormData.fromMap(
+          {"file": MultipartFile.fromBytes(bytes, filename: "file.png")});
+      final url = await Dio().post(
+          '${dotenv.env['OWNER_API_URL']!}upload-restaurant-photo',
+          data: formData,
+          options: Options(
+              headers: {"Authorization": "Bearer ${token.jwtToken}"},
+              contentType: 'multipart/form-data'));
+      fluttertoastDefault("Zdjęcie zapisano!");
+      state = AsyncData(state.value!.copyWith(photoUrl: url.data));
+      return true;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        Map responseBody = e.response!.data;
+        fluttertoastDefault(responseBody['detail'], true);
+      } else {
+        fluttertoastDefault(
+            "Coś poszło nie tak. Spróbuj zapisać dane ponownie później", true);
+      }
+      return false;
     }
   }
 
@@ -118,6 +186,7 @@ class RestaurantMenu extends _$RestaurantMenu {
 
   Future<bool> menuUpdateAction(
       Map<String, dynamic> data, String pathName) async {
+    if(restaurantId != null) false;
     final token = ref.read(authProvider).value!;
     try {
       data.putIfAbsent("restaurant_id", () => restaurantId);
@@ -151,10 +220,12 @@ class RestaurantMenu extends _$RestaurantMenu {
   }
 
   Future<void> addCategory() async {
+    if(restaurantId != null) return;
     await menuUpdateAction({}, "add-category");
   }
 
   Future<void> deleteCategory(int id) async {
+    if(restaurantId != null) return;
     if (state.value!.selectedCategory == id) {
       state = AsyncData(state.value!.copyWith(
           selectedCategory:
@@ -168,10 +239,12 @@ class RestaurantMenu extends _$RestaurantMenu {
   }
 
   Future<void> switchVisibility(int id) async {
+    if(restaurantId != null) return;
     await menuUpdateAction({"category_id": id}, "switch-category-visibility");
   }
 
   void updateCategoryName(int id, String value) {
+    if(restaurantId != null) return;
     state.value!.menu.firstWhere((element) => element.id == id).timer?.cancel();
     state.value!.menu
         .firstWhere((element) => element.id == id)
@@ -215,6 +288,7 @@ class RestaurantMenu extends _$RestaurantMenu {
   }
 
   Future<void> saveCategoryName(int id) async {
+    if(restaurantId != null) return;
     final newName =
         state.value!.menu.firstWhere((element) => element.id == id).name;
     final success = await menuUpdateAction(
@@ -225,43 +299,187 @@ class RestaurantMenu extends _$RestaurantMenu {
   }
 
   Future<void> categoryReorder(int oldIndex, int newIndex) async {
+    if(restaurantId != null) return;
     if (newIndex > state.value!.menu.length) {
       newIndex = state.value!.menu.length;
     }
     if (oldIndex < newIndex) newIndex--;
+    if (oldIndex == newIndex) return;
+    final item1 = state.value!.menu[oldIndex];
+    final item2 = state.value!.menu[newIndex];
     state = AsyncData(state.value!.copyWith(menu: [
       for (final (i, category) in state.value!.menu.indexed)
-        if (i == oldIndex)
-          state.value!.menu[newIndex].copyWith(isPending: true)
-        else if (i == newIndex)
-          state.value!.menu[oldIndex].copyWith(isPending: true)
+        if(i == newIndex)
+          if(newIndex > oldIndex)
+            ...[category,item1.copyWith(isPending: true)]
+          else
+            ...[item1.copyWith(isPending: true),category]
+        else if(i != oldIndex)
+          category
+    ]));
+    await menuUpdateAction({
+      "category_id_1": item1.id,
+      "category_id_2": item2.id,
+    }, "swap-categories-orders");
+  }
+
+  Future<void> itemReorder(int oldIndex, int newIndex) async {
+    if(restaurantId != null) return;
+    if(oldIndex == newIndex) return;
+    final selectedCategory = state.value!.menu.firstWhere((element) => element.id==state.value!.selectedCategory);
+
+    final item1 = selectedCategory.items[oldIndex];
+    final item2 = selectedCategory.items[newIndex];
+    state = AsyncData(state.value!.copyWith(menu: [
+      for (final category in state.value!.menu)
+        if (category.id == selectedCategory.id)
+          category.copyWith(items:[
+            for (final (i,item) in category.items.indexed)
+              if (i == newIndex)
+                if(newIndex > oldIndex)
+                  ...[item,category.items[oldIndex].copyWith(isPending: true)]
+                else
+                  ...[category.items[oldIndex].copyWith(isPending: true),item]
+              else if(i != oldIndex)
+                item
+          ])
         else
           category
     ]));
     await menuUpdateAction({
-      "category_id_1": state.value!.menu[oldIndex].id,
-      "category_id_2": state.value!.menu[newIndex].id,
-    }, "swap-categories-orders");
+      "item_id_1": item1.id,
+      "item_id_2": item2.id,
+      "category_id": selectedCategory.id
+    }, "swap-items-orders");
   }
 
   void setEditedItem(RestaurantMenuItem item) {
+    if(restaurantId != null) return;
     state = AsyncData(state.value!.copyWith(editedItem: item));
   }
 
   void updateEditedItemName(String? value) {
-    if(value != null && value.length>3) {
+    if(restaurantId != null) return;
+    if (value != null && value.length > 3) {
       state = AsyncData(state.value!.copyWith.editedItem!(name: value));
     }
   }
 
   void updateEditedItemDescription(String? value) {
-    state = AsyncData(state.value!.copyWith.editedItem!(name: value ?? ""));
+    if(restaurantId != null) return;
+    state =
+        AsyncData(state.value!.copyWith.editedItem!(description: value ?? ""));
   }
 
   void updateEditedItemPrice(String? value) {
-
-    if(value != null && RestaurantMenuItem.priceValidate(value) != null) {
-      state = AsyncData(state.value!.copyWith.editedItem!(price:  RestaurantMenuItem.priceValidate(value)!));
+    if(restaurantId != null) return;
+    if (value != null && RestaurantMenuItem.priceValidate(value) != null) {
+      state = AsyncData(state.value!.copyWith.editedItem!(
+          price: RestaurantMenuItem.priceValidate(value)!));
     }
+  }
+
+  void updateEditedItemStatus(RestaurantMenuItemType? value) {
+    if(restaurantId != null) return;
+    if (value == null) return;
+    state = AsyncData(state.value!.copyWith.editedItem!(status: value));
+  }
+
+  Future<bool> uploadEditedItemPhoto(Uint8List bytes) async {
+    if(restaurantId != null) return false;
+    try {
+      final token = ref.read(authProvider).value!;
+      final formData = FormData.fromMap(
+          {"file": MultipartFile.fromBytes(bytes, filename: "file.png")});
+      final url = await Dio().post(
+          '${dotenv.env['OWNER_API_URL']!}upload-item-photo',
+          data: formData,
+          options: Options(
+              headers: {"Authorization": "Bearer ${token.jwtToken}"},
+              contentType: 'multipart/form-data'));
+      fluttertoastDefault("Zdjęcie zapisano!");
+      state = AsyncData(state.value!.copyWith.editedItem!(photoUrl: url.data));
+      return true;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        Map responseBody = e.response!.data;
+        fluttertoastDefault(responseBody['detail'], true);
+      } else {
+        fluttertoastDefault(
+            "Coś poszło nie tak. Spróbuj zapisać dane ponownie później", true);
+      }
+      return false;
+    }
+  }
+
+  Future<bool> saveEditedItem() async {
+    if(restaurantId != null) return false;
+    final prevData = state.value!.editedItem!;
+    try {
+      final token = ref.read(authProvider).value!;
+      state = AsyncData(state.value!.copyWith.editedItem!(id:-2));
+      final data = await Dio().post(
+          '${dotenv.env['OWNER_API_URL']!}update-item',
+          data: {"item": prevData.toJson(), "category_id": state.value!.selectedCategory},
+          options:
+              Options(headers: {"Authorization": "Bearer ${token.jwtToken}"}));
+      fluttertoastDefault("Zapisano zmiany pozycji!");
+      final newMenu = (data.data as List<dynamic>)
+          .map((e) => RestaurantMenuCategory.fromJson(e))
+          .toList();
+      state = AsyncData(state.value!.copyWith(
+          menu: newMenu,
+          editedItem: RestaurantMenuItem(
+              id: -1,
+              name: "",
+              description: "",
+              price: 0.00,
+              order: -1,
+              status: RestaurantMenuItemType.inactive,
+              photoUrl: "")));
+      return true;
+    } on DioException catch (e) {
+      state = AsyncData(state.value!.copyWith.editedItem!(id:prevData.id));
+      if (e.response != null) {
+        Map responseBody = e.response!.data;
+        fluttertoastDefault(responseBody['detail'], true);
+      } else {
+        fluttertoastDefault(
+            "Coś poszło nie tak. Spróbuj zapisać dane ponownie później", true);
+      }
+      return false;
+    }
+  }
+
+  void setEmptyEditedItemPhoto() {
+    if(restaurantId != null) return;
+    state = AsyncData(state.value!.copyWith.editedItem!(photoUrl: ""));
+  }
+
+  void removeEditedItemPhoto() async {
+    if(restaurantId != null) return;
+    try {
+      final token = ref.read(authProvider).value!;
+      await Dio().post('${dotenv.env['OWNER_API_URL']!}delete-uploade-photo',
+          data: {
+            "url": state.value!.editedItem!.photoUrl,
+          },
+          options:
+              Options(headers: {"Authorization": "Bearer ${token.jwtToken}"}));
+      state = AsyncData(state.value!.copyWith.editedItem!(photoUrl: ""));
+    } on DioException catch (e) {
+      if (e.response != null) {
+        Map responseBody = e.response!.data;
+        fluttertoastDefault(responseBody['detail'], true);
+      } else {
+        fluttertoastDefault(
+            "Coś poszło nie tak. Spróbuj zapisać dane ponownie później", true);
+      }
+    }
+  }
+  Future<bool> deleteItem(int id) async {
+    if(restaurantId != null) return false;
+    state = AsyncData(state.value!.copyWith.editedItem!(isPending: true));
+    return await menuUpdateAction({"item_id": id}, "delete-item");
   }
 }
