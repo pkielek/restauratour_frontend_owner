@@ -7,7 +7,6 @@ import 'package:restaurant_helper/screens/base_view.dart';
 import 'package:restaurant_helper/widgets/info/info_change_password_dialog.dart';
 import 'package:restaurant_helper/widgets/info/restaurant_hour_text_field.dart';
 import 'package:restaurant_helper/widgets/info/restaurant_info_map.dart';
-import 'package:restaurant_helper/widgets/shared/email_field.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:utils/utils.dart';
 

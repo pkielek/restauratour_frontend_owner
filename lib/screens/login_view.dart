@@ -1,11 +1,9 @@
+import 'package:auth/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:restaurant_helper/model/login.dart';
-import 'package:restaurant_helper/widgets/shared/email_field.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:utils/utils.dart';
 
-import '../../widgets/login/password_field.dart';
 
 class LoginView extends ConsumerWidget {
   final RoundedLoadingButtonController _submitController =
@@ -46,14 +44,15 @@ class LoginView extends ConsumerWidget {
                             child: Column(children: [
                               EmailField(
                                   onChanged: ref
-                                      .read(loginProvider.notifier)
+                                      .read(LoginProvider(AuthType.owner).notifier)
                                       .updateEmail,
                                   onSubmit:
-                                      ref.read(loginProvider.notifier).login),
+                                      ref.read(LoginProvider(AuthType.owner).notifier).login),
                               const SizedBox(height: 15),
                               PasswordField(
+                                  type: AuthType.owner,
                                   onSubmit:
-                                      ref.read(loginProvider.notifier).login),
+                                      ref.read(LoginProvider(AuthType.owner).notifier).login),
                               const SizedBox(height: 15),
                               RoundedLoadingButton(
                                 color: primaryColor,
@@ -64,13 +63,13 @@ class LoginView extends ConsumerWidget {
                                 width: 2000,
                                 controller: _submitController,
                                 onPressed:
-                                    ref.read(loginProvider.notifier).login,
+                                    ref.read(LoginProvider(AuthType.owner).notifier).login,
                                 child: const Text('Zaloguj się!',
                                     style: TextStyle(color: Colors.white)),
                               ),
                               const SizedBox(height: 15),
                               SelectableText(
-                                  ref.watch(loginProvider).when(
+                                  ref.watch(LoginProvider(AuthType.owner)).when(
                                       data: (data) => data.errorMessage,
                                       error: (_, __) => "Niespodziewany błąd",
                                       loading: () => ""),
