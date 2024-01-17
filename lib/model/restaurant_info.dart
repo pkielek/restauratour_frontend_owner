@@ -71,6 +71,8 @@ class RestaurantInfo with _$RestaurantInfo {
       @JsonKey(includeToJson: false) required String streetNumber,
       @JsonKey(includeToJson: false) required String city,
       @JsonKey(includeToJson: false) required String postalCode,
+      @JsonKey(includeToJson: false) required double latitude,
+      @JsonKey(includeToJson: false) required double longitude,
       @JsonKey(includeFromJson: false, includeToJson: false)
       @Default(false)
       isChanged,
@@ -252,14 +254,4 @@ class Info extends _$Info {
       }
     }
   }
-}
-
-@riverpod
-Future<GoogleGeocodingResponse> restaurantMap(RestaurantMapRef ref,
-    [int? restaurantId]) async {
-  final String googleApiKey = dotenv.env['GOOGLE_MAPS_API_KEY']!;
-  return await ref.read(InfoProvider(restaurantId)).whenData((value) async {
-    return await GoogleGeocodingApi(googleApiKey).search(value.toFullAddress,
-        language: 'pl', region: 'pl', bounds: '54.83,24.15|49.00,14.12');
-  }).value!;
 }

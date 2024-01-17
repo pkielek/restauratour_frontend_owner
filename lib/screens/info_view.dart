@@ -195,7 +195,7 @@ class InfoView extends ConsumerWidget {
                                 const Padding(
                                   padding: EdgeInsets.only(bottom: 16),
                                 ),
-                                RestaurantInfoMap(width: widthPadded * 0.48)
+                                RestaurantInfoMap(lat:data.latitude, lng: data.longitude,width: widthPadded * 0.48)
                               ],
                             ))
                           ],
