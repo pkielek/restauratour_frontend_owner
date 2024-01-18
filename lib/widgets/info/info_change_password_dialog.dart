@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:restaurant_helper/model/restaurant_info.dart';
 import 'package:utils/utils.dart';
 import 'package:auth/auth.dart';
 

@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/phone_number.dart';
-import 'package:restaurant_helper/model/restaurant_info.dart';
 import 'package:restaurant_helper/screens/base_view.dart';
 import 'package:restaurant_helper/widgets/info/info_change_password_dialog.dart';
 import 'package:restaurant_helper/widgets/info/restaurant_hour_text_field.dart';
 import 'package:restaurant_helper/widgets/info/restaurant_info_map.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:utils/utils.dart';
+import 'package:restaurant/restaurant.dart';
 
 import 'package:intl_phone_field/intl_phone_field.dart';
 
