@@ -1,3 +1,4 @@
+import 'package:auth/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
@@ -186,10 +187,7 @@ class InfoView extends ConsumerWidget {
                                     onPressed: () => showDialog(
                                           context: context,
                                           builder: (context) =>
-                                              InfoChangePasswordDialog(
-                                                  password: data.newPassword,
-                                                  confirmPassword:
-                                                      data.confirmNewPassword),
+                                              const InfoChangePasswordDialog(type:AuthType.owner),
                                         ),
                                     child: const Text("Zmień hasło")),
                                 const Padding(

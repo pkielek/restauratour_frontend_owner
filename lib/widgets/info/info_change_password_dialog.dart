@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:restaurant_helper/model/restaurant_info.dart';
 import 'package:utils/utils.dart';
+import 'package:auth/auth.dart';
 
 class InfoChangePasswordDialog extends ConsumerWidget {
   const InfoChangePasswordDialog(
-      {super.key, required this.password, required this.confirmPassword});
-  final String password;
-  final String confirmPassword;
+      {super.key, required this.type});
+  final AuthType type;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,30 +20,27 @@ class InfoChangePasswordDialog extends ConsumerWidget {
             TextFormField(
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 obscureText: true,
-                initialValue: password,
+                initialValue: ref.watch(RegisterProvider(type)).password,
                 validator: (input) {
                   if (input == "" || input == null) return null;
                   return validatePassword(input).join('\n');
                 },
-                onChanged: ref.read(InfoProvider().notifier).updateNewPassword,
+                onChanged: ref.read(RegisterProvider(type).notifier).updatePassword,
                 decoration: defaultDecoration(
                     icon: Icons.password, labelText: "Nowe hasło")),
             const Padding(padding: EdgeInsets.only(top: 16)),
             TextFormField(
                 obscureText: true,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                initialValue: confirmPassword,
+                initialValue: ref.watch(RegisterProvider(type)).confirmPassword,
                 validator: (input) {
                   if (input == "" || input == null) return null;
-                  return ref
-                          .read(InfoProvider())
-                          .value!
-                          .areNewPasswordsIdentical
+                  return ref.watch(RegisterProvider(type)).password == ref.watch(RegisterProvider(type)).confirmPassword
                       ? null
                       : "Hasła muszą być identyczne";
                 },
                 onChanged:
-                    ref.read(InfoProvider().notifier).updateConfirmNewPassword,
+                    ref.read(RegisterProvider(type).notifier).updateConfirmPassword,
                 decoration: defaultDecoration(
                     icon: Icons.password, labelText: "Potwierdź hasło"))
           ]),
@@ -55,7 +52,7 @@ class InfoChangePasswordDialog extends ConsumerWidget {
             color: Colors.indigo,
             tooltip: "Zapisz hasło",
             onPressed: () async {
-              if(await ref.read(InfoProvider().notifier).saveNewPassword()) Navigator.pop(context,'Zapisz hasło');
+              if(await ref.read(RegisterProvider(type).notifier).register()) Navigator.pop(context,'Zapisz hasło');
 
             }),
         IconButton(
@@ -63,7 +60,7 @@ class InfoChangePasswordDialog extends ConsumerWidget {
             color: primaryColor,
             tooltip: "Anuluj",
             onPressed: () {
-              ref.read(InfoProvider().notifier).cancelPasswordUpdate();
+              ref.read(RegisterProvider(type).notifier).cancelPasswordUpdate();
               Navigator.pop(context, 'Anuluj');
             })
       ],

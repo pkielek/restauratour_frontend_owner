@@ -76,12 +76,6 @@ class RestaurantInfo with _$RestaurantInfo {
       @JsonKey(includeFromJson: false, includeToJson: false)
       @Default(false)
       isChanged,
-      @JsonKey(includeFromJson: false, includeToJson: false)
-      @Default("")
-      String newPassword,
-      @JsonKey(includeFromJson: false, includeToJson: false)
-      @Default("")
-      String confirmNewPassword,
       required String email,
       required String phoneNumber,
       required List<RestaurantFlag> flags,
@@ -90,8 +84,6 @@ class RestaurantInfo with _$RestaurantInfo {
       _$RestaurantInfoFromJson(json);
 
   String get toFullAddress => "$streetNumber, $postalCode $city, $country";
-
-  bool get areNewPasswordsIdentical => newPassword == confirmNewPassword;
 }
 
 @riverpod
@@ -186,53 +178,6 @@ class Info extends _$Info {
         else
           value.key: value.value
     }));
-  }
-
-  void updateNewPassword(String? input) {
-    if (input == null) return;
-    state = AsyncData(state.value!.copyWith(newPassword: input));
-  }
-
-  void updateConfirmNewPassword(String? input) {
-    if (input == null) return;
-    state = AsyncData(state.value!.copyWith(confirmNewPassword: input));
-  }
-
-  void cancelPasswordUpdate() {
-    state = AsyncData(
-        state.value!.copyWith(newPassword: "", confirmNewPassword: ""));
-  }
-
-  Future<bool> saveNewPassword() async {
-    if (validatePassword(state.value!.newPassword).isNotEmpty ||
-        state.value!.confirmNewPassword != state.value!.newPassword) {
-      fluttertoastDefault(
-          "Nowe hasło nie spełnia wymagań - odnieś się do błędów pod polami",
-          true);
-      return false;
-    }
-    try {
-      final token = ref.read(authProvider).value!;
-      await Dio().post('${dotenv.env['OWNER_API_URL']!}update-password',
-          data: {
-            "new_password": state.value!.newPassword,
-            "confirm_password": state.value!.confirmNewPassword
-          },
-          options:
-              Options(headers: {"Authorization": "Bearer ${token.jwtToken}"}));
-      fluttertoastDefault("Dane zapisano poprawnie!");
-      cancelPasswordUpdate();
-      return true;
-    } on DioException catch (e) {
-      if (e.response != null) {
-        Map responseBody = e.response!.data;
-        fluttertoastDefault(responseBody['detail'], true);
-      } else {
-        fluttertoastDefault(
-            "Coś poszło nie tak. Spróbuj jeszcze raz ponownie", true);
-      }
-      return false;
-    }
   }
 
   void saveData() async {
