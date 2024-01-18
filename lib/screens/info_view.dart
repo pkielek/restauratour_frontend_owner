@@ -99,8 +99,23 @@ class InfoView extends ConsumerWidget {
                                           decoration: defaultDecoration(
                                               icon: Icons.phone,
                                               labelText: "Numer telefonu"))),
+                                            Row(
+                                              children: [Text("Długość rezerwacji", style: listStyle,),SizedBox(
+                                                width: widthPadded*0.25,
+                                                child: Slider(
+                                                      value: data.reservationHourLength,
+                                                      onChanged: ref
+                                                          .read(InfoProvider().notifier)
+                                                          .updateReservationLength,
+                                                      min: 0.5,
+                                                      max: 2,
+                                                      label: "Długość pojedynczej rezerwacji: ${data.reservationHourLength} ${data.reservationHourLength == 1 ? "godzina" : "godziny"}",
+                                                      divisions: 3,
+                                                    ),
+                                              )],
+                                            ),
                                   const Padding(
-                                      padding: EdgeInsets.only(bottom: 32.0)),
+                                      padding: EdgeInsets.only(bottom: 16.0)),
                                   const Row(
                                     children: [
                                       SizedBox(
