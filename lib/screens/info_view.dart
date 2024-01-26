@@ -4,7 +4,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/phone_number.dart';
 import 'package:restaurant_helper/screens/base_view.dart';
-import 'package:restaurant_helper/widgets/info/info_change_password_dialog.dart';
 import 'package:restaurant_helper/widgets/info/restaurant_hour_text_field.dart';
 import 'package:restaurant_helper/widgets/info/restaurant_info_map.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
@@ -202,7 +201,7 @@ class InfoView extends ConsumerWidget {
                                     onPressed: () => showDialog(
                                           context: context,
                                           builder: (context) =>
-                                              const InfoChangePasswordDialog(type:AuthType.owner),
+                                              const ChangePasswordDialog(type:AuthType.owner),
                                         ),
                                     child: const Text("Zmień hasło")),
                                 const Padding(
