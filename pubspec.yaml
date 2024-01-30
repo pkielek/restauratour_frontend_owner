@@ -106,6 +106,7 @@ flutter:
     - .env
     - images/empty-list.webp
     - images/empty-list-colored.webp
+    - images/missing.png
 
   fonts:
     - family: NotoSansDisplay

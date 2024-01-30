@@ -85,7 +85,8 @@ class MenuView extends ConsumerWidget {
                               Padding(
                                 padding: const EdgeInsets.only(left: 12.0),
                                 child: Text(
-                                    menu.selectedCategory == 0
+                                    menu.selectedCategory == 0 ||
+                                            menu.menu.isEmpty
                                         ? ""
                                         : menu.menu
                                             .firstWhere((element) =>
@@ -95,59 +96,46 @@ class MenuView extends ConsumerWidget {
                                     style: headerStyle),
                               ),
                               headerRightDivider,
-                              Padding(
-                                padding: const EdgeInsets.only(left: 12.0),
-                                child: SingleChildScrollView(
-                                  child: ReorderableGridView.count(
-                                      mainAxisSpacing: 8,
-                                      crossAxisSpacing: 8,
-                                      childAspectRatio: 2.5,
-                                      crossAxisCount: 2,
-                                      shrinkWrap: true,
-                                      onReorder: notifier.itemReorder,
-                                      dragEnabled: !menu.menu
-                                          .firstWhere((element) =>
-                                              element.id ==
-                                              menu.selectedCategory)
-                                          .items
-                                          .any((element) => element.isPending),
-                                      footer: [
-                                        OutlinedButton(
-                                          style: ButtonStyle(
-                                              side:
-                                                  const MaterialStatePropertyAll(
-                                                      BorderSide(
-                                                          color: Colors.black,
-                                                          width: 2.0)),
-                                              shape: MaterialStatePropertyAll(
-                                                  RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8)))),
-                                          child: const Icon(
-                                            Icons.add,
-                                            color: primaryColor,
-                                            size: 96,
-                                          ),
-                                          onPressed: () {
-                                            ref
-                                                .read(RestaurantMenuProvider()
-                                                    .notifier)
-                                                .setEditedItem(RestaurantMenuItem(
-                                                    id: -1,
-                                                    name: "",
-                                                    description: "",
-                                                    price: 0.00,
-                                                    order: -1,
-                                                    status:
-                                                        RestaurantMenuItemType
-                                                            .inactive,
-                                                    photoUrl: ""));
-                                            showDialog(
-                                              barrierDismissible: false,
-                                              context: context,
-                                              builder: (context) => MenuItemEditDialog(
-                                                  item: RestaurantMenuItem(
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 12.0),
+                                  child: menu.menu.isNotEmpty ? SingleChildScrollView(
+                                    child: ReorderableGridView.count(
+                                        mainAxisSpacing: 8,
+                                        crossAxisSpacing: 8,
+                                        childAspectRatio: 2.5,
+                                        crossAxisCount: 2,
+                                        shrinkWrap: true,
+                                        onReorder: notifier.itemReorder,
+                                        dragEnabled: !menu.menu
+                                            .firstWhere((element) =>
+                                                element.id ==
+                                                menu.selectedCategory)
+                                            .items
+                                            .any(
+                                                (element) => element.isPending),
+                                        footer: [
+                                          OutlinedButton(
+                                            style: ButtonStyle(
+                                                side:
+                                                    const MaterialStatePropertyAll(
+                                                        BorderSide(
+                                                            color: Colors.black,
+                                                            width: 2.0)),
+                                                shape: MaterialStatePropertyAll(
+                                                    RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8)))),
+                                            child: const Icon(
+                                              Icons.add,
+                                              color: primaryColor,
+                                              size: 96,
+                                            ),
+                                            onPressed: () {
+                                              ref
+                                                  .read(RestaurantMenuProvider()
+                                                      .notifier)
+                                                  .setEditedItem(RestaurantMenuItem(
                                                       id: -1,
                                                       name: "",
                                                       description: "",
@@ -156,41 +144,65 @@ class MenuView extends ConsumerWidget {
                                                       status:
                                                           RestaurantMenuItemType
                                                               .inactive,
-                                                      photoUrl: ""),
-                                                  notifier: notifier,
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal:
-                                                          0.2 * widthPadded,
-                                                      vertical:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .height *
-                                                              0.05)),
-                                            );
-                                          },
-                                        )
-                                      ],
-                                      children: [
-                                        for (final item in menu.menu
-                                            .firstWhere((element) =>
-                                                element.id ==
-                                                menu.selectedCategory)
-                                            .items)
-                                          MenuItemTile(
-                                              parentSize:
-                                                  MediaQuery.of(context).size,
-                                              key: Key('item:${item.id}'),
-                                              item: item,
-                                              editable: !menu.menu
-                                                  .firstWhere((element) =>
-                                                      element.id ==
-                                                      menu.selectedCategory)
-                                                  .items
-                                                  .any((element) =>
-                                                      element.isPending))
-                                      ]),
+                                                      photoUrl: ""));
+                                              showDialog(
+                                                barrierDismissible: false,
+                                                context: context,
+                                                builder: (context) => MenuItemEditDialog(
+                                                    item: RestaurantMenuItem(
+                                                        id: -1,
+                                                        name: "",
+                                                        description: "",
+                                                        price: 0.00,
+                                                        order: -1,
+                                                        status:
+                                                            RestaurantMenuItemType
+                                                                .inactive,
+                                                        photoUrl: ""),
+                                                    notifier: notifier,
+                                                    padding: EdgeInsets.symmetric(
+                                                        horizontal:
+                                                            0.2 * widthPadded,
+                                                        vertical: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .height *
+                                                            0.05)),
+                                              );
+                                            },
+                                          )
+                                        ],
+                                        children: [
+                                          for (final item in menu.menu
+                                              .firstWhere((element) =>
+                                                  element.id ==
+                                                  menu.selectedCategory)
+                                              .items)
+                                            MenuItemTile(
+                                                parentSize:
+                                                    MediaQuery.of(context).size,
+                                                key: Key('item:${item.id}'),
+                                                item: item,
+                                                editable: !menu.menu
+                                                    .firstWhere((element) =>
+                                                        element.id ==
+                                                        menu.selectedCategory)
+                                                    .items
+                                                    .any((element) =>
+                                                        element.isPending))
+                                        ]),
+                                  ) : Column(children: [
+                          const Text(
+                            "Twoje menu restauracji jest puste - dodaj kategorię, by zacząć je komponować!",
+                            textAlign: TextAlign.center,
+                            style: headerStyle,
+                          ),
+                          Center(child: SizedBox(height: MediaQuery.of(context).size.height*0.5,child: Image.asset("images/missing.png"))),
+                          const Text("© Storyset, Freepik",
+                              textAlign: TextAlign.center,
+                              style: footprintStyle),
+                        ]),
                                 ),
-                              ),
                             ],
                           ))
                     ],
